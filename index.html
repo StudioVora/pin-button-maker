@@ -174,22 +174,25 @@
             if (selectedSize.type === 'circle') {
               ctx.arc(cx, cy, outerSize, 0, Math.PI * 2);
             } else if (selectedSize.type === 'square') {
-              const r = outerSize * 0.15;
-              ctx.moveTo(cx - outerSize + r, cy - outerSize);
-              ctx.lineTo(cx + outerSize - r, cy - outerSize);
-              ctx.quadraticCurveTo(cx + outerSize, cy - outerSize, cx + outerSize, cy - outerSize + r);
-              ctx.lineTo(cx + outerSize, cy + outerSize - r);
-              ctx.quadraticCurveTo(cx + outerSize, cy + outerSize, cx + outerSize - r, cy + outerSize);
-              ctx.lineTo(cx - outerSize + r, cy + outerSize);
-              ctx.quadraticCurveTo(cx - outerSize, cy + outerSize, cx - outerSize, cy + outerSize - r);
-              ctx.lineTo(cx - outerSize, cy - outerSize + r);
-              ctx.quadraticCurveTo(cx - outerSize, cy - outerSize, cx - outerSize + r, cy - outerSize);
+              // 네모 실제 SVG path 적용 (다운로드)
+              const s = (outerSize * 2) / 226.77;
+              const ox = cx - 113.385 * s;
+              const oy = cy - 113.385 * s;
+              ctx.moveTo((27.11 + 28.35) * s + ox, 27.33 * s + oy);
+              ctx.lineTo((200.02 - 28.35) * s + ox, 27.33 * s + oy);
+              ctx.arc((200.02 - 28.35) * s + ox, (27.33 + 28.35) * s + oy, 28.35 * s, -Math.PI/2, 0);
+              ctx.lineTo(200.02 * s + ox, (200.24 - 28.35) * s + oy);
+              ctx.arc((200.02 - 28.35) * s + ox, (200.24 - 28.35) * s + oy, 28.35 * s, 0, Math.PI/2);
+              ctx.lineTo((27.11 + 28.35) * s + ox, 200.24 * s + oy);
+              ctx.arc((27.11 + 28.35) * s + ox, (200.24 - 28.35) * s + oy, 28.35 * s, Math.PI/2, Math.PI);
+              ctx.lineTo(27.11 * s + ox, (27.33 + 28.35) * s + oy);
+              ctx.arc((27.11 + 28.35) * s + ox, (27.33 + 28.35) * s + oy, 28.35 * s, Math.PI, -Math.PI/2);
               ctx.closePath();
             } else {
-              // 하트 실제 SVG path 적용
+              // 하트 실제 SVG path 적용 (정중앙, 다운로드)
               const s = (outerSize * 2) / 226.78;
               const ox = cx - 113.39 * s;
-              const oy = cy - 91.54 * s;
+              const oy = cy - 104.9 * s;
               ctx.moveTo(144.75*s+ox, 21.89*s+oy);
               ctx.bezierCurveTo(135*s+ox, 22.9*s+oy, 125.77*s+ox, 25.29*s+oy, 117.43*s+ox, 28.89*s+oy);
               ctx.bezierCurveTo(117.06*s+ox, 32.57*s+oy, 116.94*s+ox, 40.93*s+oy, 116.82*s+ox, 42.11*s+oy);
@@ -314,10 +317,14 @@
                 </svg>
               );
             } else {
-              // 하트 path를 실제 SVG 값으로 변환 (중심을 size로 맞추기)
-              const scale = (size * 2) / 226.78; // 원본 SVG 크기 기준
-              const offsetX = size - 113.39 * scale;
-              const offsetY = size - 91.54 * scale;
+              // 하트 path를 실제 SVG 값으로 변환 (정중앙 배치)
+              const scale = (size * 2) / 226.78;
+              const centerX = size;
+              const centerY = size;
+              const svgCenterX = 113.39;
+              const svgCenterY = 104.9; // 하트 SVG의 실제 중심점
+              const offsetX = centerX - svgCenterX * scale;
+              const offsetY = centerY - svgCenterY * scale;
               
               const outerPath = `M${144.75*scale+offsetX},${21.89*scale+offsetY}c${-9.75*scale},${1.01*scale},${-18.98*scale},${3.4*scale},${-27.32*scale},${7*scale},${-0.37*scale},${3.68*scale},${-0.49*scale},${12.04*scale},${-0.61*scale},${13.22*scale},${-0.15*scale},${1.47*scale},${-1.74*scale},${3.44*scale},${-3.55*scale},${3.48*scale},${-1.81*scale},${0.04*scale},${-2.83*scale},${-2.57*scale},${-3.06*scale},${-3.55*scale},${-0.23*scale},${-0.98*scale},${-0.34*scale},${-8.01*scale},${-0.53*scale},${-11.68*scale},${-0.03*scale},${-0.55*scale},${-0.11*scale},${-1.07*scale},${-0.22*scale},${-1.57*scale},${-8.28*scale},${-3.54*scale},${-17.41*scale},${-5.9*scale},${-27.07*scale},${-6.9*scale}C${46.38*scale+offsetX},${18.15*scale+offsetY},${14.36*scale+offsetX},${50.23*scale+offsetY},${14.36*scale+offsetX},${87.81*scale+offsetY}c0,${11.13*scale},${2.69*scale},${21.63*scale},${7.43*scale},${30.91*scale},${4.96*scale},${11.86*scale},${23.15*scale},${48.66*scale},${52.66*scale},${68.15*scale},${34.17*scale},${22.56*scale},${52.01*scale},${18.75*scale},${78.46*scale},${0.45*scale},${24.97*scale},${-17.27*scale},${48.32*scale},${-53.78*scale},${53.91*scale},${-71.69*scale},${3.82*scale},${-8.5*scale},${5.96*scale},${-17.91*scale},${5.96*scale},${-27.83*scale},0,${-37.57*scale},${-32.02*scale},${-69.65*scale},${-68.03*scale},${-65.91*scale}Z`;
               

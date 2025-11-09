@@ -250,10 +250,13 @@
             }
             ctx.stroke();
 
-            ctx.beginPath();
-            ctx.moveTo(cx, 0);
-            ctx.lineTo(cx, 2 * SCALE_FACTOR);
-            ctx.stroke();
+            // 상단 선 (하트는 제외)
+            if (selectedSize.type !== 'heart') {
+              ctx.beginPath();
+              ctx.moveTo(cx, 0);
+              ctx.lineTo(cx, 2 * SCALE_FACTOR);
+              ctx.stroke();
+            }
 
             canvas.toBlob((blob) => {
               const url = URL.createObjectURL(blob);
@@ -327,7 +330,6 @@
                     width={transform.width} height={transform.height} clipPath={`url(#${clipId})`} pointerEvents="none" /></>}
                   <path d={outerPath} fill="none" stroke="#000" strokeWidth="2" />
                   <path d={innerPath} fill="none" stroke="#f00" strokeWidth="2" />
-                  <line x1={size} y1={0} x2={size} y2={6} stroke="#000" strokeWidth="1" />
                   {!image && <g onClick={() => fileInputRef.current?.click()} style={{cursor:'pointer'}}>
                     <circle cx={size} cy={size} r={30} fill="#f3f4f6" />
                     <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" pointerEvents="none">+</text></g>}

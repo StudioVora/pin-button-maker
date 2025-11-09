@@ -251,16 +251,8 @@
             ctx.stroke();
 
             ctx.beginPath();
-            if (selectedSize.type === 'heart') {
-              const nw = 6 * SCALE_FACTOR, nd = 2 * SCALE_FACTOR;
-              ctx.moveTo(cx - nw / 2, 0);
-              ctx.lineTo(cx - nw / 2, nd);
-              ctx.quadraticCurveTo(cx, nd * 1.5, cx + nw / 2, nd);
-              ctx.lineTo(cx + nw / 2, 0);
-            } else {
-              ctx.moveTo(cx, 0);
-              ctx.lineTo(cx, 2 * SCALE_FACTOR);
-            }
+            ctx.moveTo(cx, 0);
+            ctx.lineTo(cx, 2 * SCALE_FACTOR);
             ctx.stroke();
 
             canvas.toBlob((blob) => {
@@ -335,7 +327,7 @@
                     width={transform.width} height={transform.height} clipPath={`url(#${clipId})`} pointerEvents="none" /></>}
                   <path d={outerPath} fill="none" stroke="#000" strokeWidth="2" />
                   <path d={innerPath} fill="none" stroke="#f00" strokeWidth="2" />
-                  <path d={`M ${size - 6},0 L ${size - 6},6 Q ${size},9 ${size + 6},6 L ${size + 6},0`} fill="none" stroke="#000" strokeWidth="1" />
+                  <line x1={size} y1={0} x2={size} y2={6} stroke="#000" strokeWidth="1" />
                   {!image && <g onClick={() => fileInputRef.current?.click()} style={{cursor:'pointer'}}>
                     <circle cx={size} cy={size} r={30} fill="#f3f4f6" />
                     <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" pointerEvents="none">+</text></g>}
@@ -347,7 +339,7 @@
           return (
             <div className={`flex ${isMobile ? 'flex-col' : ''} h-screen bg-gray-100`}>
               <div className={`${isMobile ? 'flex-1 order-2' : 'flex-1'} flex items-center justify-center p-4 overflow-auto`}>
-                <div className="relative bg-white rounded-lg shadow-lg p-6" 
+                <div className="relative bg-white rounded-lg shadow-lg p-12" 
                   onDrop={(e) => { e.preventDefault(); loadImage(e.dataTransfer.files[0]); }} 
                   onDragOver={(e) => e.preventDefault()} onMouseDown={handleMouseDown}
                   onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>

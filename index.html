@@ -85,20 +85,28 @@
               const dx = e.clientX - startPos.x;
               const dy = e.clientY - startPos.y;
               let newWidth = startTransform.width, newHeight = startTransform.height;
-              let newX = startTransform.x, newY = startTransform.y;
 
-              switch (resizeHandle) {
-                case 'tl': newWidth -= dx; newHeight -= dy; newX += dx; newY += dy; break;
-                case 'tr': newWidth += dx; newHeight -= dy; newY += dy; break;
-                case 'bl': newWidth -= dx; newHeight += dy; newX += dx; break;
-                case 'br': newWidth += dx; newHeight += dy; break;
-                case 't': newHeight -= dy; newY += dy; break;
-                case 'b': newHeight += dy; break;
-                case 'l': newWidth -= dx; newX += dx; break;
-                case 'r': newWidth += dx; break;
+              if (['tl', 'tr', 'bl', 'br'].includes(resizeHandle)) {
+                // 모서리: 비율 유지, 중심 고정
+                const avgDelta = (Math.abs(dx) + Math.abs(dy)) / 2;
+                const sign = (dx + dy) > 0 ? 1 : -1;
+                const scale = 1 + (sign * avgDelta) / Math.max(startTransform.width, startTransform.height);
+                newWidth = startTransform.width * scale;
+                newHeight = startTransform.height * scale;
+              } else if (resizeHandle === 't' || resizeHandle === 'b') {
+                // 상하: 세로만 조절, 중심 고정
+                const delta = resizeHandle === 'b' ? dy : -dy;
+                newHeight = startTransform.height + delta * 2;
+                newWidth = startTransform.width;
+              } else if (resizeHandle === 'l' || resizeHandle === 'r') {
+                // 좌우: 가로만 조절, 중심 고정
+                const delta = resizeHandle === 'r' ? dx : -dx;
+                newWidth = startTransform.width + delta * 2;
+                newHeight = startTransform.height;
               }
+
               if (newWidth > 20 && newHeight > 20) {
-                setTransform({ x: newX, y: newY, width: newWidth, height: newHeight });
+                setTransform({ x: startTransform.x, y: startTransform.y, width: newWidth, height: newHeight });
               }
             }
           };
@@ -178,9 +186,25 @@
               ctx.quadraticCurveTo(cx - outerSize, cy - outerSize, cx - outerSize + r, cy - outerSize);
               ctx.closePath();
             } else {
-              ctx.moveTo(cx, cy - outerSize * 0.25);
-              ctx.bezierCurveTo(cx - outerSize * 0.55, cy - outerSize * 0.85, cx - outerSize * 1.15, cy + outerSize * 0.05, cx, cy + outerSize * 0.95);
-              ctx.bezierCurveTo(cx + outerSize * 1.15, cy + outerSize * 0.05, cx + outerSize * 0.55, cy - outerSize * 0.85, cx, cy - outerSize * 0.25);
+              // 하트 실제 SVG path 적용
+              const s = (outerSize * 2) / 226.78;
+              const ox = cx - 113.39 * s;
+              const oy = cy - 91.54 * s;
+              ctx.moveTo(144.75*s+ox, 21.89*s+oy);
+              ctx.bezierCurveTo(135*s+ox, 22.9*s+oy, 125.77*s+ox, 25.29*s+oy, 117.43*s+ox, 28.89*s+oy);
+              ctx.bezierCurveTo(117.06*s+ox, 32.57*s+oy, 116.94*s+ox, 40.93*s+oy, 116.82*s+ox, 42.11*s+oy);
+              ctx.bezierCurveTo(116.67*s+ox, 43.58*s+oy, 115.08*s+ox, 45.55*s+oy, 113.27*s+ox, 45.59*s+oy);
+              ctx.bezierCurveTo(111.46*s+ox, 45.63*s+oy, 110.44*s+ox, 43.02*s+oy, 110.21*s+ox, 42.04*s+oy);
+              ctx.bezierCurveTo(109.98*s+ox, 41.06*s+oy, 109.87*s+ox, 34.03*s+oy, 109.68*s+ox, 30.36*s+oy);
+              ctx.bezierCurveTo(109.65*s+ox, 29.81*s+oy, 109.57*s+ox, 29.29*s+oy, 109.46*s+ox, 28.79*s+oy);
+              ctx.bezierCurveTo(101.18*s+ox, 25.25*s+oy, 92.05*s+ox, 22.89*s+oy, 82.39*s+ox, 21.89*s+oy);
+              ctx.bezierCurveTo(46.38*s+ox, 18.15*s+oy, 14.36*s+ox, 50.23*s+oy, 14.36*s+ox, 87.81*s+oy);
+              ctx.bezierCurveTo(14.36*s+ox, 98.94*s+oy, 17.05*s+ox, 109.44*s+oy, 21.79*s+ox, 118.72*s+oy);
+              ctx.bezierCurveTo(26.75*s+ox, 130.58*s+oy, 44.94*s+ox, 167.38*s+oy, 74.45*s+ox, 186.87*s+oy);
+              ctx.bezierCurveTo(108.62*s+ox, 209.43*s+oy, 126.46*s+ox, 205.62*s+oy, 152.91*s+ox, 187.32*s+oy);
+              ctx.bezierCurveTo(177.88*s+ox, 170.05*s+oy, 201.23*s+ox, 133.54*s+oy, 206.82*s+ox, 115.63*s+oy);
+              ctx.bezierCurveTo(210.64*s+ox, 107.13*s+oy, 212.78*s+ox, 97.72*s+oy, 212.78*s+ox, 87.8*s+oy);
+              ctx.bezierCurveTo(212.78*s+ox, 50.23*s+oy, 180.76*s+ox, 18.15*s+oy, 144.75*s+ox, 21.89*s+oy);
               ctx.closePath();
             }
             ctx.fill();
@@ -204,9 +228,24 @@
               ctx.quadraticCurveTo(cx - outerSize, cy - outerSize, cx - outerSize + r, cy - outerSize);
               ctx.closePath();
             } else {
-              ctx.moveTo(cx, cy - outerSize * 0.25);
-              ctx.bezierCurveTo(cx - outerSize * 0.55, cy - outerSize * 0.85, cx - outerSize * 1.15, cy + outerSize * 0.05, cx, cy + outerSize * 0.95);
-              ctx.bezierCurveTo(cx + outerSize * 1.15, cy + outerSize * 0.05, cx + outerSize * 0.55, cy - outerSize * 0.85, cx, cy - outerSize * 0.25);
+              const s = (outerSize * 2) / 226.78;
+              const ox = cx - 113.39 * s;
+              const oy = cy - 91.54 * s;
+              ctx.moveTo(144.75*s+ox, 21.89*s+oy);
+              ctx.bezierCurveTo(135*s+ox, 22.9*s+oy, 125.77*s+ox, 25.29*s+oy, 117.43*s+ox, 28.89*s+oy);
+              ctx.bezierCurveTo(117.06*s+ox, 32.57*s+oy, 116.94*s+ox, 40.93*s+oy, 116.82*s+ox, 42.11*s+oy);
+              ctx.bezierCurveTo(116.67*s+ox, 43.58*s+oy, 115.08*s+ox, 45.55*s+oy, 113.27*s+ox, 45.59*s+oy);
+              ctx.bezierCurveTo(111.46*s+ox, 45.63*s+oy, 110.44*s+ox, 43.02*s+oy, 110.21*s+ox, 42.04*s+oy);
+              ctx.bezierCurveTo(109.98*s+ox, 41.06*s+oy, 109.87*s+ox, 34.03*s+oy, 109.68*s+ox, 30.36*s+oy);
+              ctx.bezierCurveTo(109.65*s+ox, 29.81*s+oy, 109.57*s+ox, 29.29*s+oy, 109.46*s+ox, 28.79*s+oy);
+              ctx.bezierCurveTo(101.18*s+ox, 25.25*s+oy, 92.05*s+ox, 22.89*s+oy, 82.39*s+ox, 21.89*s+oy);
+              ctx.bezierCurveTo(46.38*s+ox, 18.15*s+oy, 14.36*s+ox, 50.23*s+oy, 14.36*s+ox, 87.81*s+oy);
+              ctx.bezierCurveTo(14.36*s+ox, 98.94*s+oy, 17.05*s+ox, 109.44*s+oy, 21.79*s+ox, 118.72*s+oy);
+              ctx.bezierCurveTo(26.75*s+ox, 130.58*s+oy, 44.94*s+ox, 167.38*s+oy, 74.45*s+ox, 186.87*s+oy);
+              ctx.bezierCurveTo(108.62*s+ox, 209.43*s+oy, 126.46*s+ox, 205.62*s+oy, 152.91*s+ox, 187.32*s+oy);
+              ctx.bezierCurveTo(177.88*s+ox, 170.05*s+oy, 201.23*s+ox, 133.54*s+oy, 206.82*s+ox, 115.63*s+oy);
+              ctx.bezierCurveTo(210.64*s+ox, 107.13*s+oy, 212.78*s+ox, 97.72*s+oy, 212.78*s+ox, 87.8*s+oy);
+              ctx.bezierCurveTo(212.78*s+ox, 50.23*s+oy, 180.76*s+ox, 18.15*s+oy, 144.75*s+ox, 21.89*s+oy);
               ctx.closePath();
             }
             ctx.stroke();
@@ -280,15 +319,22 @@
                 </svg>
               );
             } else {
-              const hp = `M ${size},${size * 0.75} C ${size * 0.45},${size * 0.15} ${size * -0.15},${size * 1.05} ${size},${size * 1.95} C ${size * 2.15},${size * 1.05} ${size * 1.55},${size * 0.15} ${size},${size * 0.75} Z`;
-              const ip = `M ${size},${size * 0.815} C ${size * 0.485},${size * 0.255} ${size * -0.06},${size * 1.085} ${size},${size * 1.835} C ${size * 2.06},${size * 1.085} ${size * 1.515},${size * 0.255} ${size},${size * 0.815} Z`;
+              // 하트 path를 실제 SVG 값으로 변환 (중심을 size로 맞추기)
+              const scale = (size * 2) / 226.78; // 원본 SVG 크기 기준
+              const offsetX = size - 113.39 * scale;
+              const offsetY = size - 91.54 * scale;
+              
+              const outerPath = `M${144.75*scale+offsetX},${21.89*scale+offsetY}c${-9.75*scale},${1.01*scale},${-18.98*scale},${3.4*scale},${-27.32*scale},${7*scale},${-0.37*scale},${3.68*scale},${-0.49*scale},${12.04*scale},${-0.61*scale},${13.22*scale},${-0.15*scale},${1.47*scale},${-1.74*scale},${3.44*scale},${-3.55*scale},${3.48*scale},${-1.81*scale},${0.04*scale},${-2.83*scale},${-2.57*scale},${-3.06*scale},${-3.55*scale},${-0.23*scale},${-0.98*scale},${-0.34*scale},${-8.01*scale},${-0.53*scale},${-11.68*scale},${-0.03*scale},${-0.55*scale},${-0.11*scale},${-1.07*scale},${-0.22*scale},${-1.57*scale},${-8.28*scale},${-3.54*scale},${-17.41*scale},${-5.9*scale},${-27.07*scale},${-6.9*scale}C${46.38*scale+offsetX},${18.15*scale+offsetY},${14.36*scale+offsetX},${50.23*scale+offsetY},${14.36*scale+offsetX},${87.81*scale+offsetY}c0,${11.13*scale},${2.69*scale},${21.63*scale},${7.43*scale},${30.91*scale},${4.96*scale},${11.86*scale},${23.15*scale},${48.66*scale},${52.66*scale},${68.15*scale},${34.17*scale},${22.56*scale},${52.01*scale},${18.75*scale},${78.46*scale},${0.45*scale},${24.97*scale},${-17.27*scale},${48.32*scale},${-53.78*scale},${53.91*scale},${-71.69*scale},${3.82*scale},${-8.5*scale},${5.96*scale},${-17.91*scale},${5.96*scale},${-27.83*scale},0,${-37.57*scale},${-32.02*scale},${-69.65*scale},${-68.03*scale},${-65.91*scale}Z`;
+              
+              const innerPath = `M${141.65*scale+offsetX},${42.21*scale+offsetY}c${-6.25*scale},${0.65*scale},${-16.7*scale},${4.38*scale},${-23.22*scale},${7.08*scale},${-1.33*scale},${0.55*scale},${-2.75*scale},${0.87*scale},${-4.83*scale},${0.96*scale},${-2.15*scale},${-0.09*scale},${-3.56*scale},${-0.41*scale},${-4.89*scale},${-0.96*scale},${-6.51*scale},${-2.7*scale},${-16.97*scale},${-6.44*scale},${-23.22*scale},${-7.08*scale},${-26.23*scale},${-2.72*scale},${-48.86*scale},${17.43*scale},${-48.86*scale},${44.81*scale},0,${12.39*scale},${5.63*scale},${24.2*scale},${8.41*scale},${30.39*scale},${5.35*scale},${14.16*scale},${20.67*scale},${33.47*scale},${37.63*scale},${47.67*scale},${14.76*scale},${12.36*scale},${23.17*scale},${17.05*scale},${30.93*scale},${17*scale}h0s0,0,0,0c0,0,0,0,0,0h0c${7.69*scale},${0.05*scale},${16.1*scale},${-4.64*scale},${30.87*scale},${-17*scale},${16.96*scale},${-14.2*scale},${32.28*scale},${-33.52*scale},${37.63*scale},${-47.67*scale},${2.78*scale},${-6.19*scale},${8.41*scale},${-18*scale},${8.41*scale},${-30.39*scale},0,${-27.37*scale},${-22.63*scale},${-47.53*scale},${-48.86*scale},${-44.81*scale}Z`;
+              
               return (
                 <svg width={size * 2} height={size * 2 + 6} style={common}>
-                  {image && <><defs><clipPath id={clipId}><path d={hp} /></clipPath></defs>
+                  {image && <><defs><clipPath id={clipId}><path d={outerPath} /></clipPath></defs>
                   <image href={image} x={size + transform.x - transform.width / 2} y={size + transform.y - transform.height / 2}
                     width={transform.width} height={transform.height} clipPath={`url(#${clipId})`} pointerEvents="none" /></>}
-                  <path d={hp} fill="none" stroke="#000" strokeWidth="2" />
-                  <path d={ip} fill="none" stroke="#f00" strokeWidth="2" />
+                  <path d={outerPath} fill="none" stroke="#000" strokeWidth="2" />
+                  <path d={innerPath} fill="none" stroke="#f00" strokeWidth="2" />
                   <path d={`M ${size - 6},0 L ${size - 6},6 Q ${size},9 ${size + 6},6 L ${size + 6},0`} fill="none" stroke="#000" strokeWidth="1" />
                   {!image && <g onClick={() => fileInputRef.current?.click()} style={{cursor:'pointer'}}>
                     <circle cx={size} cy={size} r={30} fill="#f3f4f6" />

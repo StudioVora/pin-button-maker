@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>핀버튼 도안 제작</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; padding: 0; }
+        * { box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        const SIZES = [
+          { inner: 25, outer: 35, label: '25mm - 35mm', type: 'circle' },
+          { inner: 32, outer: 44, label: '32mm - 44mm', type: 'circle' },
+          { inner: 44, outer: 54, label: '44mm - 54mm', type: 'circle', default: true },
+          { inner: 58, outer: 69.5, label: '58mm - 69.5mm', type: 'circle' },
+          { inner: 75, outer: 85, label: '75mm - 85mm', type: 'circle' },
+          { inner: 50, outer: 61, label: '50mm - 61mm (네모)', type: 'square' },
+          { inner: 54.287, outer: 70, label: '54mm - 70mm (하트)', type: 'heart' }
+        ];
+
+        const UploadIcon = () => (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+        );
+
+        const DownloadIcon = () => (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        );
+
+        const PinButtonEditor = () => {
+          const [selectedSize, setSelectedSize] = useState(SIZES.find(s => s.default));
+          const [image, setImage] = useState(null);
+          const [imageTransform, setImageTransform] = useState({ x: 0, y: 0, scale: 1 });
+          const [isDragging, setIsDragging] = useState(false);
+          const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+          const fileInputRef = useRef(null);
+          const imageRef = useRef(null);
+          const containerRef = useRef(null);
+
+          const SCALE_FACTOR = 4;
+
+          const handleFileSelect = (e) => {
+            const file = e.target.files?.[0];
+            if (file && file.type.startsWith('image/')) {
+              const reader = new FileReader();
+              reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                  imageRef.current = img;
+                  setImage(event.target.result);
+                  setImageTransform({ x: 0, y: 0, scale: 1 });
+                };
+                img.src = event.target.result;
+              };
+              reader.readAsDataURL(file);
+            }
+          };
+
+          const handleDrop = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+              const reader = new FileReader();
+              reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                  imageRef.current = img;
+                  setImage(event.target.result);
+                  setImageTransform({ x: 0, y: 0, scale: 1 });
+                };
+                img.src = event.target.result;
+              };
+              reader.readAsDataURL(file);
+            }
+          };
+
+          const handleDragOver = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          };
+
+          const handleMouseDown = (e) => {
+            if (!image) return;
+            setIsDragging(true);
+            setDragStart({ x: e.clientX - imageTransform.x, y: e.clientY - imageTransform.y });
+          };
+
+          const handleMouseMove = (e) => {
+            if (!isDragging || !image) return;
+            setImageTransform(prev => ({
+              ...prev,
+              x: e.clientX - dragStart.x,
+              y: e.clientY - dragStart.y
+            }));
+          };
+
+          const handleMouseUp = () => {
+            setIsDragging(false);
+          };
+
+          const handleTouchStart = (e) => {
+            if (!image) return;
+            if (e.touches.length === 1) {
+              setIsDragging(true);
+              setDragStart({ 
+                x: e.touches[0].clientX - imageTransform.x, 
+                y: e.touches[0].clientY - imageTransform.y 
+              });
+            }
+          };
+
+          const handleTouchMove = (e) => {
+            if (!image) return;
+            if (e.touches.length === 1 && isDragging) {
+              e.preventDefault();
+              setImageTransform(prev => ({
+                ...prev,
+                x: e.touches[0].clientX - dragStart.x,
+                y: e.touches[0].clientY - dragStart.y
+              }));
+            } else if (e.touches.length === 2) {
+              e.preventDefault();
+              const touch1 = e.touches[0];
+              const touch2 = e.touches[1];
+              const dist = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+              
+              if (!containerRef.current.lastDist) {
+                containerRef.current.lastDist = dist;
+                return;
+              }
+              
+              const delta = dist - containerRef.current.lastDist;
+              containerRef.current.lastDist = dist;
+              
+              setImageTransform(prev => ({
+                ...prev,
+                scale: Math.max(0.1, Math.min(5, prev.scale + delta * 0.01))
+              }));
+            }
+          };
+
+          const handleTouchEnd = () => {
+            setIsDragging(false);
+            if (containerRef.current) {
+              containerRef.current.lastDist = null;
+            }
+          };
+
+          const handleWheel = (e) => {
+            if (!image) return;
+            e.preventDefault();
+            const delta = -e.deltaY * 0.001;
+            setImageTransform(prev => ({
+              ...prev,
+              scale: Math.max(0.1, Math.min(5, prev.scale + delta))
+            }));
+          };
+
+          const handleDownload = () => {
+            if (!image || !imageRef.current) return;
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const outerSize = selectedSize.outer * SCALE_FACTOR;
+            const displaySize = selectedSize.outer * 3;
+            const scaleRatio = outerSize / displaySize;
+
+            if (selectedSize.type === 'circle') {
+              canvas.width = outerSize * 2;
+              canvas.height = outerSize * 2 + 2 * SCALE_FACTOR;
+              const centerX = canvas.width / 2;
+              const centerY = canvas.width / 2;
+
+              ctx.save();
+              ctx.translate(centerX, centerY);
+              ctx.translate(imageTransform.x * scaleRatio, imageTransform.y * scaleRatio);
+              ctx.scale(imageTransform.scale, imageTransform.scale);
+              const imgWidth = imageRef.current.width * scaleRatio;
+              const imgHeight = imageRef.current.height * scaleRatio;
+              ctx.drawImage(imageRef.current, -imgWidth / 2, -imgHeight / 2, imgWidth, imgHeight);
+              ctx.restore();
+
+              ctx.globalCompositeOperation = 'destination-in';
+              ctx.beginPath();
+              ctx.arc(centerX, centerY, outerSize, 0, Math.PI * 2);
+              ctx.fill();
+
+              ctx.globalCompositeOperation = 'source-over';
+              ctx.strokeStyle = '#000000';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.arc(centerX, centerY, outerSize, 0, Math.PI * 2);
+              ctx.stroke();
+
+              ctx.beginPath();
+              ctx.moveTo(centerX, 0);
+              ctx.lineTo(centerX, 2 * SCALE_FACTOR);
+              ctx.stroke();
+            } else if (selectedSize.type === 'square') {
+              canvas.width = outerSize * 2;
+              canvas.height = outerSize * 2 + 2 * SCALE_FACTOR;
+              const centerX = canvas.width / 2;
+              const centerY = canvas.width / 2;
+              const radius = outerSize * 0.15;
+
+              ctx.save();
+              ctx.translate(centerX, centerY);
+              ctx.translate(imageTransform.x * scaleRatio, imageTransform.y * scaleRatio);
+              ctx.scale(imageTransform.scale, imageTransform.scale);
+              const imgWidth = imageRef.current.width * scaleRatio;
+              const imgHeight = imageRef.current.height * scaleRatio;
+              ctx.drawImage(imageRef.current, -imgWidth / 2, -imgHeight / 2, imgWidth, imgHeight);
+              ctx.restore();
+
+              ctx.globalCompositeOperation = 'destination-in';
+              ctx.beginPath();
+              ctx.moveTo(centerX - outerSize + radius, centerY - outerSize);
+              ctx.lineTo(centerX + outerSize - radius, centerY - outerSize);
+              ctx.quadraticCurveTo(centerX + outerSize, centerY - outerSize, centerX + outerSize, centerY - outerSize + radius);
+              ctx.lineTo(centerX + outerSize, centerY + outerSize - radius);
+              ctx.quadraticCurveTo(centerX + outerSize, centerY + outerSize, centerX + outerSize - radius, centerY + outerSize);
+              ctx.lineTo(centerX - outerSize + radius, centerY + outerSize);
+              ctx.quadraticCurveTo(centerX - outerSize, centerY + outerSize, centerX - outerSize, centerY + outerSize - radius);
+              ctx.lineTo(centerX - outerSize, centerY - outerSize + radius);
+              ctx.quadraticCurveTo(centerX - outerSize, centerY - outerSize, centerX - outerSize + radius, centerY - outerSize);
+              ctx.closePath();
+              ctx.fill();
+
+              ctx.globalCompositeOperation = 'source-over';
+              ctx.strokeStyle = '#000000';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.moveTo(centerX - outerSize + radius, centerY - outerSize);
+              ctx.lineTo(centerX + outerSize - radius, centerY - outerSize);
+              ctx.quadraticCurveTo(centerX + outerSize, centerY - outerSize, centerX + outerSize, centerY - outerSize + radius);
+              ctx.lineTo(centerX + outerSize, centerY + outerSize - radius);
+              ctx.quadraticCurveTo(centerX + outerSize, centerY + outerSize, centerX + outerSize - radius, centerY + outerSize);
+              ctx.lineTo(centerX - outerSize + radius, centerY + outerSize);
+              ctx.quadraticCurveTo(centerX - outerSize, centerY + outerSize, centerX - outerSize, centerY + outerSize - radius);
+              ctx.lineTo(centerX - outerSize, centerY - outerSize + radius);
+              ctx.quadraticCurveTo(centerX - outerSize, centerY - outerSize, centerX - outerSize + radius, centerY - outerSize);
+              ctx.closePath();
+              ctx.stroke();
+
+              ctx.beginPath();
+              ctx.moveTo(centerX, 0);
+              ctx.lineTo(centerX, 2 * SCALE_FACTOR);
+              ctx.stroke();
+            } else if (selectedSize.type === 'heart') {
+              canvas.width = outerSize * 2;
+              canvas.height = outerSize * 2 + 2 * SCALE_FACTOR;
+              const centerX = canvas.width / 2;
+              const centerY = canvas.width / 2;
+
+              ctx.save();
+              ctx.translate(centerX, centerY);
+              ctx.translate(imageTransform.x * scaleRatio, imageTransform.y * scaleRatio);
+              ctx.scale(imageTransform.scale, imageTransform.scale);
+              const imgWidth = imageRef.current.width * scaleRatio;
+              const imgHeight = imageRef.current.height * scaleRatio;
+              ctx.drawImage(imageRef.current, -imgWidth / 2, -imgHeight / 2, imgWidth, imgHeight);
+              ctx.restore();
+
+              ctx.globalCompositeOperation = 'destination-in';
+              ctx.beginPath();
+              const topY = centerY - outerSize * 0.35;
+              const leftX = centerX - outerSize * 0.5;
+              const rightX = centerX + outerSize * 0.5;
+              const bottomY = centerY + outerSize * 0.85;
+              
+              ctx.moveTo(centerX, topY);
+              ctx.bezierCurveTo(leftX, topY - outerSize * 0.3, leftX - outerSize * 0.3, topY + outerSize * 0.3, centerX, bottomY);
+              ctx.bezierCurveTo(rightX + outerSize * 0.3, topY + outerSize * 0.3, rightX, topY - outerSize * 0.3, centerX, topY);
+              ctx.closePath();
+              ctx.fill();
+
+              ctx.globalCompositeOperation = 'source-over';
+              ctx.strokeStyle = '#000000';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.moveTo(centerX, topY);
+              ctx.bezierCurveTo(leftX, topY - outerSize * 0.3, leftX - outerSize * 0.3, topY + outerSize * 0.3, centerX, bottomY);
+              ctx.bezierCurveTo(rightX + outerSize * 0.3, topY + outerSize * 0.3, rightX, topY - outerSize * 0.3, centerX, topY);
+              ctx.closePath();
+              ctx.stroke();
+
+              const notchDepth = 2 * SCALE_FACTOR;
+              const notchWidth = 6 * SCALE_FACTOR;
+              ctx.beginPath();
+              ctx.moveTo(centerX - notchWidth/2, 0);
+              ctx.lineTo(centerX - notchWidth/2, notchDepth);
+              ctx.quadraticCurveTo(centerX, notchDepth * 1.5, centerX + notchWidth/2, notchDepth);
+              ctx.lineTo(centerX + notchWidth/2, 0);
+              ctx.stroke();
+            }
+
+            canvas.toBlob((blob) => {
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `pin-button-${selectedSize.label}.png`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }, 'image/png');
+          };
+
+          useEffect(() => {
+            const cleanup = () => {
+              document.removeEventListener('mouseup', handleMouseUp);
+              document.removeEventListener('mousemove', handleMouseMove);
+            };
+            
+            document.addEventListener('mouseup', handleMouseUp);
+            document.addEventListener('mousemove', handleMouseMove);
+            
+            return cleanup;
+          }, [isDragging, dragStart, image]);
+
+          const renderShape = () => {
+            const size = selectedSize.outer * 3;
+            const innerSize = selectedSize.inner * 3;
+
+            if (selectedSize.type === 'circle') {
+              return (
+                <svg width={size * 2} height={size * 2 + 6} style={{ display: 'block', touchAction: 'none' }}>
+                  {image && (
+                    <g>
+                      <defs>
+                        <clipPath id="outerClip">
+                          <circle cx={size} cy={size} r={size} />
+                        </clipPath>
+                      </defs>
+                      <image
+                        href={image}
+                        x={size + imageTransform.x - (imageRef.current?.width || 0) * imageTransform.scale / 2}
+                        y={size + imageTransform.y - (imageRef.current?.height || 0) * imageTransform.scale / 2}
+                        width={(imageRef.current?.width || 0) * imageTransform.scale}
+                        height={(imageRef.current?.height || 0) * imageTransform.scale}
+                        clipPath="url(#outerClip)"
+                        style={{ pointerEvents: 'none' }}
+                      />
+                    </g>
+                  )}
+                  <circle cx={size} cy={size} r={size} fill="none" stroke="#000000" strokeWidth="2" />
+                  <circle cx={size} cy={size} r={innerSize} fill="none" stroke="#FF0000" strokeWidth="2" />
+                  <line x1={size} y1={0} x2={size} y2={6} stroke="#000000" strokeWidth="1" />
+                  {!image && (
+                    <g>
+                      <circle cx={size} cy={size} r={30} fill="#f3f4f6" style={{ cursor: 'pointer' }} onClick={() => fileInputRef.current?.click()} />
+                      <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" style={{ cursor: 'pointer', pointerEvents: 'none' }}>+</text>
+                    </g>
+                  )}
+                </svg>
+              );
+            } else if (selectedSize.type === 'square') {
+              const radius = size * 0.15;
+              return (
+                <svg width={size * 2} height={size * 2 + 6} style={{ display: 'block', touchAction: 'none' }}>
+                  {image && (
+                    <g>
+                      <defs>
+                        <clipPath id="squareClip">
+                          <rect x={0} y={0} width={size * 2} height={size * 2} rx={radius} ry={radius} />
+                        </clipPath>
+                      </defs>
+                      <image
+                        href={image}
+                        x={size + imageTransform.x - (imageRef.current?.width || 0) * imageTransform.scale / 2}
+                        y={size + imageTransform.y - (imageRef.current?.height || 0) * imageTransform.scale / 2}
+                        width={(imageRef.current?.width || 0) * imageTransform.scale}
+                        height={(imageRef.current?.height || 0) * imageTransform.scale}
+                        clipPath="url(#squareClip)"
+                        style={{ pointerEvents: 'none' }}
+                      />
+                    </g>
+                  )}
+                  <rect x={0} y={0} width={size * 2} height={size * 2} rx={radius} ry={radius} fill="none" stroke="#000000" strokeWidth="2" />
+                  <rect x={size - innerSize} y={size - innerSize} width={innerSize * 2} height={innerSize * 2} rx={radius * 0.82} ry={radius * 0.82} fill="none" stroke="#FF0000" strokeWidth="2" />
+                  <line x1={size} y1={0} x2={size} y2={6} stroke="#000000" strokeWidth="1" />
+                  {!image && (
+                    <g>
+                      <circle cx={size} cy={size} r={30} fill="#f3f4f6" style={{ cursor: 'pointer' }} onClick={() => fileInputRef.current?.click()} />
+                      <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" style={{ cursor: 'pointer', pointerEvents: 'none' }}>+</text>
+                    </g>
+                  )}
+                </svg>
+              );
+            } else if (selectedSize.type === 'heart') {
+              const topY = size * 0.65;
+              const leftX = size * 0.5;
+              const rightX = size * 1.5;
+              const bottomY = size * 1.85;
+              
+              const innerTopY = size * 0.73;
+              const innerLeftX = size * 0.58;
+              const innerRightX = size * 1.42;
+              const innerBottomY = size * 1.73;
+              
+              return (
+                <svg width={size * 2} height={size * 2 + 6} style={{ display: 'block', touchAction: 'none' }}>
+                  {image && (
+                    <g>
+                      <defs>
+                        <clipPath id="heartClip">
+                          <path d={`M ${size},${topY} 
+                                   C ${leftX},${topY - size * 0.3} ${leftX - size * 0.3},${topY + size * 0.3} ${size},${bottomY}
+                                   C ${rightX + size * 0.3},${topY + size * 0.3} ${rightX},${topY - size * 0.3} ${size},${topY} Z`} />
+                        </clipPath>
+                      </defs>
+                      <image
+                        href={image}
+                        x={size + imageTransform.x - (imageRef.current?.width || 0) * imageTransform.scale / 2}
+                        y={size + imageTransform.y - (imageRef.current?.height || 0) * imageTransform.scale / 2}
+                        width={(imageRef.current?.width || 0) * imageTransform.scale}
+                        height={(imageRef.current?.height || 0) * imageTransform.scale}
+                        clipPath="url(#heartClip)"
+                        style={{ pointerEvents: 'none' }}
+                      />
+                    </g>
+                  )}
+                  <path d={`M ${size},${topY} 
+                           C ${leftX},${topY - size * 0.3} ${leftX - size * 0.3},${topY + size * 0.3} ${size},${bottomY}
+                           C ${rightX + size * 0.3},${topY + size * 0.3} ${rightX},${topY - size * 0.3} ${size},${topY} Z`}
+                        fill="none" stroke="#000000" strokeWidth="2" />
+                  <path d={`M ${size},${innerTopY} 
+                           C ${innerLeftX},${innerTopY - innerSize * 0.3} ${innerLeftX - innerSize * 0.3},${innerTopY + innerSize * 0.3} ${size},${innerBottomY}
+                           C ${innerRightX + innerSize * 0.3},${innerTopY + innerSize * 0.3} ${innerRightX},${innerTopY - innerSize * 0.3} ${size},${innerTopY} Z`}
+                        fill="none" stroke="#FF0000" strokeWidth="2" />
+                  <path d={`M ${size - 6},0 L ${size - 6},6 Q ${size},9 ${size + 6},6 L ${size + 6},0`} 
+                        fill="none" stroke="#000000" strokeWidth="1" />
+                  {!image && (
+                    <g>
+                      <circle cx={size} cy={size} r={30} fill="#f3f4f6" style={{ cursor: 'pointer' }} onClick={() => fileInputRef.current?.click()} />
+                      <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" style={{ cursor: 'pointer', pointerEvents: 'none' }}>+</text>
+                    </g>
+                  )}
+                </svg>
+              );
+            }
+          };
+
+          return (
+            <div className="flex h-screen bg-gray-100">
+              <div className="flex-1 flex items-center justify-center p-8">
+                <div
+                  ref={containerRef}
+                  className="relative bg-white rounded-lg shadow-lg p-12"
+                  style={{ width: 'fit-content' }}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onMouseDown={handleMouseDown}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  onWheel={handleWheel}
+                >
+                  {renderShape()}
+                </div>
+              </div>
+
+              <div className="w-64 bg-white shadow-lg p-6 flex flex-col gap-4 overflow-y-auto">
+                <h2 className="text-xl font-bold mb-4">사이즈 선택</h2>
+                
+                {SIZES.map((size, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setSelectedSize(size);
+                      setImage(null);
+                      setImageTransform({ x: 0, y: 0, scale: 1 });
+                    }}
+                    className={`px-4 py-3 rounded-lg font-medium transition-colors text-left ${
+                      selectedSize.label === size.label
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {size.label}
+                  </button>
+                ))}
+
+                <div className="mt-8 flex flex-col gap-3">
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                  >
+                    <UploadIcon />
+                    사진 업로드
+                  </button>
+
+                  <button
+                    onClick={handleDownload}
+                    disabled={!image}
+                    className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-colors ${
+                      image
+                        ? 'bg-blue-500 text-white hover:bg-blue-600'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                  >
+                    <DownloadIcon />
+                    PNG 다운로드
+                  </button>
+                </div>
+
+                {image && (
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-gray-700">
+                    <p className="font-medium mb-1">사용 방법:</p>
+                    <ul className="space-y-1 text-xs">
+                      <li>• 드래그: 이미지 이동</li>
+                      <li>• 휠/핀치: 확대/축소</li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+            </div>
+          );
+        };
+
+        ReactDOM.render(<PinButtonEditor />, document.getElementById('root'));
+    </script>
+</body>
+</html>

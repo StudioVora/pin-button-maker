@@ -183,17 +183,18 @@
               const y1 = 27.33 * s + oy;
               const w1 = 172.91 * s;
               const h1 = 172.91 * s;
-              const r1 = 28.35 * s;
+              const rx1 = 28.35 * s;
               
-              ctx.moveTo(x1 + r1, y1);
-              ctx.lineTo(x1 + w1 - r1, y1);
-              ctx.arc(x1 + w1 - r1, y1 + r1, r1, -Math.PI/2, 0);
-              ctx.lineTo(x1 + w1, y1 + h1 - r1);
-              ctx.arc(x1 + w1 - r1, y1 + h1 - r1, r1, 0, Math.PI/2);
-              ctx.lineTo(x1 + r1, y1 + h1);
-              ctx.arc(x1 + r1, y1 + h1 - r1, r1, Math.PI/2, Math.PI);
-              ctx.lineTo(x1, y1 + r1);
-              ctx.arc(x1 + r1, y1 + r1, r1, Math.PI, -Math.PI/2);
+              // quadraticCurveTo 사용 (Q 명령어를 canvas로 변환)
+              ctx.moveTo(x1 + rx1, y1);
+              ctx.lineTo(x1 + w1 - rx1, y1);
+              ctx.quadraticCurveTo(x1 + w1, y1, x1 + w1, y1 + rx1);
+              ctx.lineTo(x1 + w1, y1 + h1 - rx1);
+              ctx.quadraticCurveTo(x1 + w1, y1 + h1, x1 + w1 - rx1, y1 + h1);
+              ctx.lineTo(x1 + rx1, y1 + h1);
+              ctx.quadraticCurveTo(x1, y1 + h1, x1, y1 + h1 - rx1);
+              ctx.lineTo(x1, y1 + rx1);
+              ctx.quadraticCurveTo(x1, y1, x1 + rx1, y1);
               ctx.closePath();
             } else {
               // 하트 실제 SVG path 적용 (정중앙, 다운로드)
@@ -234,17 +235,17 @@
               const y1 = 27.33 * s + oy;
               const w1 = 172.91 * s;
               const h1 = 172.91 * s;
-              const r1 = 28.35 * s;
+              const rx1 = 28.35 * s;
               
-              ctx.moveTo(x1 + r1, y1);
-              ctx.lineTo(x1 + w1 - r1, y1);
-              ctx.arc(x1 + w1 - r1, y1 + r1, r1, -Math.PI/2, 0);
-              ctx.lineTo(x1 + w1, y1 + h1 - r1);
-              ctx.arc(x1 + w1 - r1, y1 + h1 - r1, r1, 0, Math.PI/2);
-              ctx.lineTo(x1 + r1, y1 + h1);
-              ctx.arc(x1 + r1, y1 + h1 - r1, r1, Math.PI/2, Math.PI);
-              ctx.lineTo(x1, y1 + r1);
-              ctx.arc(x1 + r1, y1 + r1, r1, Math.PI, -Math.PI/2);
+              ctx.moveTo(x1 + rx1, y1);
+              ctx.lineTo(x1 + w1 - rx1, y1);
+              ctx.quadraticCurveTo(x1 + w1, y1, x1 + w1, y1 + rx1);
+              ctx.lineTo(x1 + w1, y1 + h1 - rx1);
+              ctx.quadraticCurveTo(x1 + w1, y1 + h1, x1 + w1 - rx1, y1 + h1);
+              ctx.lineTo(x1 + rx1, y1 + h1);
+              ctx.quadraticCurveTo(x1, y1 + h1, x1, y1 + h1 - rx1);
+              ctx.lineTo(x1, y1 + rx1);
+              ctx.quadraticCurveTo(x1, y1, x1 + rx1, y1);
               ctx.closePath();
             } else {
               const s = (outerSize * 2) / 226.78;

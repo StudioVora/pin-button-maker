@@ -178,15 +178,22 @@
               const s = (outerSize * 2) / 226.77;
               const ox = cx - 113.385 * s;
               const oy = cy - 113.385 * s;
-              ctx.moveTo((27.11 + 28.35) * s + ox, 27.33 * s + oy);
-              ctx.lineTo((200.02 - 28.35) * s + ox, 27.33 * s + oy);
-              ctx.arc((200.02 - 28.35) * s + ox, (27.33 + 28.35) * s + oy, 28.35 * s, -Math.PI/2, 0);
-              ctx.lineTo(200.02 * s + ox, (200.24 - 28.35) * s + oy);
-              ctx.arc((200.02 - 28.35) * s + ox, (200.24 - 28.35) * s + oy, 28.35 * s, 0, Math.PI/2);
-              ctx.lineTo((27.11 + 28.35) * s + ox, 200.24 * s + oy);
-              ctx.arc((27.11 + 28.35) * s + ox, (200.24 - 28.35) * s + oy, 28.35 * s, Math.PI/2, Math.PI);
-              ctx.lineTo(27.11 * s + ox, (27.33 + 28.35) * s + oy);
-              ctx.arc((27.11 + 28.35) * s + ox, (27.33 + 28.35) * s + oy, 28.35 * s, Math.PI, -Math.PI/2);
+              
+              const x1 = 27.11 * s + ox;
+              const y1 = 27.33 * s + oy;
+              const w1 = 172.91 * s;
+              const h1 = 172.91 * s;
+              const r1 = 28.35 * s;
+              
+              ctx.moveTo(x1 + r1, y1);
+              ctx.lineTo(x1 + w1 - r1, y1);
+              ctx.arc(x1 + w1 - r1, y1 + r1, r1, -Math.PI/2, 0);
+              ctx.lineTo(x1 + w1, y1 + h1 - r1);
+              ctx.arc(x1 + w1 - r1, y1 + h1 - r1, r1, 0, Math.PI/2);
+              ctx.lineTo(x1 + r1, y1 + h1);
+              ctx.arc(x1 + r1, y1 + h1 - r1, r1, Math.PI/2, Math.PI);
+              ctx.lineTo(x1, y1 + r1);
+              ctx.arc(x1 + r1, y1 + r1, r1, Math.PI, -Math.PI/2);
               ctx.closePath();
             } else {
               // 하트 실제 SVG path 적용 (정중앙, 다운로드)
@@ -219,21 +226,30 @@
             if (selectedSize.type === 'circle') {
               ctx.arc(cx, cy, outerSize, 0, Math.PI * 2);
             } else if (selectedSize.type === 'square') {
-              const r = outerSize * 0.15;
-              ctx.moveTo(cx - outerSize + r, cy - outerSize);
-              ctx.lineTo(cx + outerSize - r, cy - outerSize);
-              ctx.quadraticCurveTo(cx + outerSize, cy - outerSize, cx + outerSize, cy - outerSize + r);
-              ctx.lineTo(cx + outerSize, cy + outerSize - r);
-              ctx.quadraticCurveTo(cx + outerSize, cy + outerSize, cx + outerSize - r, cy + outerSize);
-              ctx.lineTo(cx - outerSize + r, cy + outerSize);
-              ctx.quadraticCurveTo(cx - outerSize, cy + outerSize, cx - outerSize, cy + outerSize - r);
-              ctx.lineTo(cx - outerSize, cy - outerSize + r);
-              ctx.quadraticCurveTo(cx - outerSize, cy - outerSize, cx - outerSize + r, cy - outerSize);
+              const s = (outerSize * 2) / 226.77;
+              const ox = cx - 113.385 * s;
+              const oy = cy - 113.385 * s;
+              
+              const x1 = 27.11 * s + ox;
+              const y1 = 27.33 * s + oy;
+              const w1 = 172.91 * s;
+              const h1 = 172.91 * s;
+              const r1 = 28.35 * s;
+              
+              ctx.moveTo(x1 + r1, y1);
+              ctx.lineTo(x1 + w1 - r1, y1);
+              ctx.arc(x1 + w1 - r1, y1 + r1, r1, -Math.PI/2, 0);
+              ctx.lineTo(x1 + w1, y1 + h1 - r1);
+              ctx.arc(x1 + w1 - r1, y1 + h1 - r1, r1, 0, Math.PI/2);
+              ctx.lineTo(x1 + r1, y1 + h1);
+              ctx.arc(x1 + r1, y1 + h1 - r1, r1, Math.PI/2, Math.PI);
+              ctx.lineTo(x1, y1 + r1);
+              ctx.arc(x1 + r1, y1 + r1, r1, Math.PI, -Math.PI/2);
               ctx.closePath();
             } else {
               const s = (outerSize * 2) / 226.78;
               const ox = cx - 113.39 * s;
-              const oy = cy - 91.54 * s;
+              const oy = cy - 104.9 * s;
               ctx.moveTo(144.75*s+ox, 21.89*s+oy);
               ctx.bezierCurveTo(135*s+ox, 22.9*s+oy, 125.77*s+ox, 25.29*s+oy, 117.43*s+ox, 28.89*s+oy);
               ctx.bezierCurveTo(117.06*s+ox, 32.57*s+oy, 116.94*s+ox, 40.93*s+oy, 116.82*s+ox, 42.11*s+oy);

@@ -318,7 +318,7 @@
                 </svg>
               );
             } else if (selectedSize.type === 'square') {
-              const r = size * 0.15, ir = innerSize * 0.82;
+              const r = size * 0.15, ir = innerSize * 0.15;
               return (
                 <svg width={size * 2} height={size * 2 + 6} style={common}>
                   {image && <><defs><clipPath id={clipId}><rect x={0} y={0} width={size * 2} height={size * 2} rx={r} /></clipPath></defs>

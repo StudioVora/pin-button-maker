@@ -174,18 +174,17 @@
             if (selectedSize.type === 'circle') {
               ctx.arc(cx, cy, outerSize, 0, Math.PI * 2);
             } else if (selectedSize.type === 'square') {
-              // 네모 실제 SVG path 적용 (다운로드)
-              const s = (outerSize * 2) / 226.77;
-              const ox = cx - 113.385 * s;
-              const oy = cy - 113.385 * s;
+              // 네모 실제 SVG path 적용 (다운로드, viewBox 200 기준)
+              const s = (outerSize * 2) / 200;
+              const ox = cx - 100 * s;
+              const oy = cy - 100 * s;
               
-              const x1 = 27.11 * s + ox;
-              const y1 = 27.33 * s + oy;
+              const x1 = 13.54 * s + ox;
+              const y1 = 13.22 * s + oy;
               const w1 = 172.91 * s;
               const h1 = 172.91 * s;
               const rx1 = 28.35 * s;
               
-              // quadraticCurveTo 사용 (Q 명령어를 canvas로 변환)
               ctx.moveTo(x1 + rx1, y1);
               ctx.lineTo(x1 + w1 - rx1, y1);
               ctx.quadraticCurveTo(x1 + w1, y1, x1 + w1, y1 + rx1);
@@ -227,12 +226,12 @@
             if (selectedSize.type === 'circle') {
               ctx.arc(cx, cy, outerSize, 0, Math.PI * 2);
             } else if (selectedSize.type === 'square') {
-              const s = (outerSize * 2) / 226.77;
-              const ox = cx - 113.385 * s;
-              const oy = cy - 113.385 * s;
+              const s = (outerSize * 2) / 200;
+              const ox = cx - 100 * s;
+              const oy = cy - 100 * s;
               
-              const x1 = 27.11 * s + ox;
-              const y1 = 27.33 * s + oy;
+              const x1 = 13.54 * s + ox;
+              const y1 = 13.22 * s + oy;
               const w1 = 172.91 * s;
               const h1 = 172.91 * s;
               const rx1 = 28.35 * s;

@@ -136,26 +136,36 @@
 
           const handleTouchMove = (e) => {
             if (!image) return;
-            e.preventDefault();
+            
             if (e.touches.length === 1 && isDragging) {
+              e.preventDefault();
               setTransform(prev => ({ 
                 ...prev, 
                 x: e.touches[0].clientX - startPos.x, 
                 y: e.touches[0].clientY - startPos.y 
               }));
             } else if (e.touches.length === 2) {
+              e.preventDefault();
               const t1 = e.touches[0], t2 = e.touches[1];
               const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-              const scale = dist / startPos.dist;
-              setTransform(prev => ({ 
-                ...prev,
-                width: startPos.startWidth * scale, 
-                height: startPos.startHeight * scale 
-              }));
+              
+              if (startPos.dist) {
+                const scale = dist / startPos.dist;
+                setTransform(prev => ({ 
+                  ...prev,
+                  width: startPos.startWidth * scale, 
+                  height: startPos.startHeight * scale 
+                }));
+              }
             }
           };
 
-          const handleTouchEnd = () => setIsDragging(false);
+          const handleTouchEnd = () => {
+            setIsDragging(false);
+            if (startPos.dist) {
+              setStartPos(prev => ({ ...prev, dist: null }));
+            }
+          };
 
           const zoom = (factor) => {
             setTransform(prev => ({ ...prev, width: prev.width * factor, height: prev.height * factor }));
@@ -375,8 +385,12 @@
               <div className={`${isMobile ? 'flex-1 order-2' : 'flex-1'} flex items-center justify-center p-4 overflow-auto`}>
                 <div className="relative bg-white rounded-lg shadow-lg p-12" 
                   onDrop={(e) => { e.preventDefault(); loadImage(e.dataTransfer.files[0]); }} 
-                  onDragOver={(e) => e.preventDefault()} onMouseDown={handleMouseDown}
-                  onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
+                  onDragOver={(e) => e.preventDefault()} 
+                  onMouseDown={handleMouseDown}
+                  onTouchStart={handleTouchStart} 
+                  onTouchMove={handleTouchMove} 
+                  onTouchEnd={handleTouchEnd}
+                  style={{ touchAction: 'none' }}>
                   <div style={{ position: 'relative' }}>
                     <Shape />
                     {image && !isMobile && ['tl','tr','bl','br','t','b','l','r'].map(h => {

@@ -182,6 +182,10 @@
             setTransform(prev => ({ ...prev, width: prev.width * factor, height: prev.height * factor }));
           };
 
+          const moveImage = (dx, dy) => {
+            setTransform(prev => ({ ...prev, x: prev.x + dx, y: prev.y + dy }));
+          };
+
           const downloadImage = () => {
             if (!image || !imageRef.current) return;
             const canvas = document.createElement('canvas');
@@ -326,6 +330,76 @@
             };
           }, [isDragging, isResizing, startPos, startTransform, resizeHandle]);
 
+          useEffect(() => {
+            const container = document.querySelector('.touch-container');
+            if (!container) return;
+
+            let touchStartDist = 0;
+            let touchStartTransform = { width: 0, height: 0 };
+            let isTouching = false;
+
+            const onTouchStart = (e) => {
+              if (!image) return;
+              
+              if (e.touches.length === 1) {
+                isTouching = true;
+                const touch = e.touches[0];
+                setStartPos({ 
+                  x: touch.clientX - transform.x, 
+                  y: touch.clientY - transform.y,
+                  type: 'drag'
+                });
+              } else if (e.touches.length === 2) {
+                e.preventDefault();
+                isTouching = false;
+                const t1 = e.touches[0];
+                const t2 = e.touches[1];
+                touchStartDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+                touchStartTransform = { width: transform.width, height: transform.height };
+              }
+            };
+
+            const onTouchMove = (e) => {
+              if (!image) return;
+              
+              if (e.touches.length === 1 && isTouching) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                setTransform(prev => ({ 
+                  ...prev, 
+                  x: touch.clientX - startPos.x, 
+                  y: touch.clientY - startPos.y 
+                }));
+              } else if (e.touches.length === 2) {
+                e.preventDefault();
+                const t1 = e.touches[0];
+                const t2 = e.touches[1];
+                const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+                const scale = dist / touchStartDist;
+                
+                setTransform(prev => ({ 
+                  ...prev,
+                  width: touchStartTransform.width * scale, 
+                  height: touchStartTransform.height * scale 
+                }));
+              }
+            };
+
+            const onTouchEnd = () => {
+              isTouching = false;
+            };
+
+            container.addEventListener('touchstart', onTouchStart, { passive: false });
+            container.addEventListener('touchmove', onTouchMove, { passive: false });
+            container.addEventListener('touchend', onTouchEnd);
+
+            return () => {
+              container.removeEventListener('touchstart', onTouchStart);
+              container.removeEventListener('touchmove', onTouchMove);
+              container.removeEventListener('touchend', onTouchEnd);
+            };
+          }, [image, transform, startPos]);
+
           const size = selectedSize.outer * 3;
           const innerSize = selectedSize.inner * 3;
 
@@ -394,13 +468,10 @@
           return (
             <div className={`flex ${isMobile ? 'flex-col' : ''} h-screen bg-gray-100`}>
               <div className={`${isMobile ? 'flex-1 order-2' : 'flex-1'} flex items-center justify-center p-4 overflow-auto`}>
-                <div className="relative bg-white rounded-lg shadow-lg p-12" 
+                <div className="relative bg-white rounded-lg shadow-lg p-12 touch-container" 
                   onDrop={(e) => { e.preventDefault(); loadImage(e.dataTransfer.files[0]); }} 
                   onDragOver={(e) => e.preventDefault()} 
                   onMouseDown={handleMouseDown}
-                  onTouchStart={handleTouchStart} 
-                  onTouchMove={handleTouchMove} 
-                  onTouchEnd={handleTouchEnd}
                   style={{ touchAction: 'none' }}>
                   <div style={{ position: 'relative' }}>
                     <Shape />
@@ -447,14 +518,30 @@
                 </button>
 
                 {image && (
-                  <div className={`flex gap-2 ${isMobile ? 'flex-1' : ''}`}>
-                    <button onClick={() => zoom(0.9)} className="flex-1 px-3 py-2 bg-gray-500 text-white text-lg rounded-lg hover:bg-gray-600">−</button>
-                    <button onClick={() => zoom(1.1)} className="flex-1 px-3 py-2 bg-gray-500 text-white text-lg rounded-lg hover:bg-gray-600">+</button>
-                  </div>
+                  <>
+                    <div className={`flex gap-2 ${isMobile ? 'w-full' : ''}`}>
+                      <button onClick={() => zoom(0.9)} className="flex-1 px-3 py-2 bg-gray-500 text-white text-lg rounded-lg hover:bg-gray-600">−</button>
+                      <button onClick={() => zoom(1.1)} className="flex-1 px-3 py-2 bg-gray-500 text-white text-lg rounded-lg hover:bg-gray-600">+</button>
+                    </div>
+                    
+                    <div className={`${isMobile ? 'w-full' : ''}`}>
+                      <div className="grid grid-cols-3 gap-1">
+                        <div></div>
+                        <button onClick={() => moveImage(0, -10)} className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">↑</button>
+                        <div></div>
+                        <button onClick={() => moveImage(-10, 0)} className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">←</button>
+                        <div></div>
+                        <button onClick={() => moveImage(10, 0)} className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">→</button>
+                        <div></div>
+                        <button onClick={() => moveImage(0, 10)} className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">↓</button>
+                        <div></div>
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 <button onClick={downloadImage} disabled={!image}
-                  className={`${isMobile ? 'flex-1' : ''} flex items-center justify-center gap-2 px-4 py-2 text-sm rounded-lg ${image ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-300 text-gray-500'}`}>
+                  className={`${isMobile ? 'w-full' : ''} flex items-center justify-center gap-2 px-4 py-2 text-sm rounded-lg ${image ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-300 text-gray-500'}`}>
                   ⬇ {isMobile ? '다운' : 'PNG 다운로드'}
                 </button>
 
@@ -464,6 +551,7 @@
                     <p>• 드래그: 이동</p>
                     <p>• 핸들: 크기조절</p>
                     <p>• +/- : 확대축소</p>
+                    <p>• 화살표: 미세조정</p>
                   </div>
                 )}
               </div>

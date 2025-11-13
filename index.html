@@ -127,8 +127,10 @@
               setIsDragging(true);
               setStartPos({ x: e.touches[0].clientX - transform.x, y: e.touches[0].clientY - transform.y });
             } else if (e.touches.length === 2) {
+              setIsDragging(false);
               const t1 = e.touches[0], t2 = e.touches[1];
-              setStartPos({ dist: Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY), transform: { ...transform } });
+              const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+              setStartPos({ dist: dist, startWidth: transform.width, startHeight: transform.height });
             }
           };
 
@@ -136,13 +138,20 @@
             if (!image) return;
             e.preventDefault();
             if (e.touches.length === 1 && isDragging) {
-              setTransform(prev => ({ ...prev, x: e.touches[0].clientX - startPos.x, y: e.touches[0].clientY - startPos.y }));
+              setTransform(prev => ({ 
+                ...prev, 
+                x: e.touches[0].clientX - startPos.x, 
+                y: e.touches[0].clientY - startPos.y 
+              }));
             } else if (e.touches.length === 2) {
               const t1 = e.touches[0], t2 = e.touches[1];
               const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
               const scale = dist / startPos.dist;
-              setTransform({ x: startPos.transform.x, y: startPos.transform.y, 
-                width: startPos.transform.width * scale, height: startPos.transform.height * scale });
+              setTransform(prev => ({ 
+                ...prev,
+                width: startPos.startWidth * scale, 
+                height: startPos.startHeight * scale 
+              }));
             }
           };
 

@@ -9,15 +9,46 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; touch-action: none; }
-        * { box-sizing: border-box; }
-        .transform-handle {
-            width: 14px; height: 14px; background: white; border: 2px solid #3b82f6;
-            border-radius: 50%; position: absolute; z-index: 10; transform: translate(-50%, -50%);
-        }
-        .transform-handle:hover { background: #3b82f6; transform: translate(-50%, -50%) scale(1.2); }
-        @media (max-width: 768px) { .desktop-only { display: none !important; } }
-    </style>
+      body { margin: 0; padding: 0; overflow: hidden; touch-action: none; }
+      * { box-sizing: border-box; }
+      .transform-handle {
+          width: 14px; height: 14px; background: white; border: 2px solid #3b82f6;
+          border-radius: 50%; position: absolute; z-index: 10; 
+          transform: translate(-50%, -50%);
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .transform-handle:hover { 
+          background: #3b82f6; 
+          transform: translate(-50%, -50%) scale(1.3);
+          box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+      }
+      @media (max-width: 768px) { .desktop-only { display: none !important; } }
+      
+      @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+      }
+      
+      @keyframes slideIn {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+      }
+      
+      .fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+      .slide-in { animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+      
+      .btn-hover {
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .btn-hover:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      .btn-hover:active {
+          transform: translateY(0);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+</style>
 </head>
 <body>
     <div id="root"></div>
@@ -409,14 +440,14 @@
             
             if (selectedSize.type === 'circle') {
               return (
-                <svg width={size * 2} height={size * 2 + 6} style={common}>
+                <svg width={size * 2} height={size * 2 + 6} style={common} className="fade-in">
                   {image && <><defs><clipPath id={clipId}><circle cx={size} cy={size} r={size} /></clipPath></defs>
                   <image href={image} x={size + transform.x - transform.width / 2} y={size + transform.y - transform.height / 2} 
-                    width={transform.width} height={transform.height} clipPath={`url(#${clipId})`} pointerEvents="none" /></>}
-                  <circle cx={size} cy={size} r={size} fill="none" stroke="#000" strokeWidth="2" />
-                  <circle cx={size} cy={size} r={innerSize} fill="none" stroke="#f00" strokeWidth="2" />
+                    width={transform.width} height={transform.height} clipPath={`url(#${clipId})`} pointerEvents="none" style={{transition: isDragging || isResizing ? 'none' : 'all 0.1s ease-out'}}/></>}
+                  <circle cx={size} cy={size} r={size} fill="none" stroke="#000" strokeWidth="2" style={{transition: 'all 0.3s ease'}} />
+                  <circle cx={size} cy={size} r={innerSize} fill="none" stroke="#f00" strokeWidth="2" style={{transition: 'all 0.3s ease'}} />
                   <line x1={size} y1={0} x2={size} y2={6} stroke="#000" strokeWidth="1" />
-                  {!image && <g onClick={() => fileInputRef.current?.click()} style={{cursor:'pointer'}}>
+                  {!image && <g onClick={() => fileInputRef.current?.click()} style={{cursor:'pointer'}} className="slide-in">
                     <circle cx={size} cy={size} r={30} fill="#f3f4f6" />
                     <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" pointerEvents="none">+</text></g>}
                 </svg>
@@ -424,14 +455,14 @@
             } else if (selectedSize.type === 'square') {
               const r = size * 0.15, ir = innerSize * 0.15;
               return (
-                <svg width={size * 2} height={size * 2 + 6} style={common}>
+                <svg width={size * 2} height={size * 2 + 6} style={common} className="fade-in">
                   {image && <><defs><clipPath id={clipId}><rect x={0} y={0} width={size * 2} height={size * 2} rx={r} /></clipPath></defs>
                   <image href={image} x={size + transform.x - transform.width / 2} y={size + transform.y - transform.height / 2}
-                    width={transform.width} height={transform.height} clipPath={`url(#${clipId})`} pointerEvents="none" /></>}
-                  <rect x={0} y={0} width={size * 2} height={size * 2} rx={r} fill="none" stroke="#000" strokeWidth="2" />
-                  <rect x={size - innerSize} y={size - innerSize} width={innerSize * 2} height={innerSize * 2} rx={ir} fill="none" stroke="#f00" strokeWidth="2" />
+                    width={transform.width} height={transform.height} clipPath={`url(#${clipId})`} pointerEvents="none" style={{transition: isDragging || isResizing ? 'none' : 'all 0.1s ease-out'}} /></>}
+                  <rect x={0} y={0} width={size * 2} height={size * 2} rx={r} fill="none" stroke="#000" strokeWidth="2" style={{transition: 'all 0.3s ease'}} />
+                  <rect x={size - innerSize} y={size - innerSize} width={innerSize * 2} height={innerSize * 2} rx={ir} fill="none" stroke="#f00" strokeWidth="2" style={{transition: 'all 0.3s ease'}} />
                   <line x1={size} y1={0} x2={size} y2={6} stroke="#000" strokeWidth="1" />
-                  {!image && <g onClick={() => fileInputRef.current?.click()} style={{cursor:'pointer'}}>
+                  {!image && <g onClick={() => fileInputRef.current?.click()} style={{cursor:'pointer'}} className="slide-in">
                     <circle cx={size} cy={size} r={30} fill="#f3f4f6" />
                     <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" pointerEvents="none">+</text></g>}
                 </svg>
@@ -451,13 +482,13 @@
               const innerPath = `M${141.65*scale+offsetX},${42.21*scale+offsetY}c${-6.25*scale},${0.65*scale},${-16.7*scale},${4.38*scale},${-23.22*scale},${7.08*scale},${-1.33*scale},${0.55*scale},${-2.75*scale},${0.87*scale},${-4.83*scale},${0.96*scale},${-2.15*scale},${-0.09*scale},${-3.56*scale},${-0.41*scale},${-4.89*scale},${-0.96*scale},${-6.51*scale},${-2.7*scale},${-16.97*scale},${-6.44*scale},${-23.22*scale},${-7.08*scale},${-26.23*scale},${-2.72*scale},${-48.86*scale},${17.43*scale},${-48.86*scale},${44.81*scale},0,${12.39*scale},${5.63*scale},${24.2*scale},${8.41*scale},${30.39*scale},${5.35*scale},${14.16*scale},${20.67*scale},${33.47*scale},${37.63*scale},${47.67*scale},${14.76*scale},${12.36*scale},${23.17*scale},${17.05*scale},${30.93*scale},${17*scale}h0s0,0,0,0c0,0,0,0,0,0h0c${7.69*scale},${0.05*scale},${16.1*scale},${-4.64*scale},${30.87*scale},${-17*scale},${16.96*scale},${-14.2*scale},${32.28*scale},${-33.52*scale},${37.63*scale},${-47.67*scale},${2.78*scale},${-6.19*scale},${8.41*scale},${-18*scale},${8.41*scale},${-30.39*scale},0,${-27.37*scale},${-22.63*scale},${-47.53*scale},${-48.86*scale},${-44.81*scale}Z`;
               
               return (
-                <svg width={size * 2} height={size * 2 + 6} style={common}>
+                <svg width={size * 2} height={size * 2 + 6} style={common} className="fade-in">
                   {image && <><defs><clipPath id={clipId}><path d={outerPath} /></clipPath></defs>
                   <image href={image} x={size + transform.x - transform.width / 2} y={size + transform.y - transform.height / 2}
-                    width={transform.width} height={transform.height} clipPath={`url(#${clipId})`} pointerEvents="none" /></>}
-                  <path d={outerPath} fill="none" stroke="#000" strokeWidth="2" />
-                  <path d={innerPath} fill="none" stroke="#f00" strokeWidth="2" />
-                  {!image && <g onClick={() => fileInputRef.current?.click()} style={{cursor:'pointer'}}>
+                    width={transform.width} height={transform.height} clipPath={`url(#${clipId})`} pointerEvents="none" style={{transition: isDragging || isResizing ? 'none' : 'all 0.1s ease-out'}}/></>}
+                  <path d={outerPath} fill="none" stroke="#000" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
+                  <path d={innerPath} fill="none" stroke="#f00" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
+                  {!image && <g onClick={() => fileInputRef.current?.click()} style={{cursor:'pointer'}} className="slide-in">
                     <circle cx={size} cy={size} r={30} fill="#f3f4f6" />
                     <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" pointerEvents="none">+</text></g>}
                 </svg>
@@ -468,7 +499,7 @@
           return (
             <div className={`flex ${isMobile ? 'flex-col' : ''} h-screen bg-gray-100`}>
               <div className={`${isMobile ? 'flex-1 order-2' : 'flex-1'} flex items-center justify-center p-4 overflow-auto`}>
-                <div className="relative bg-white rounded-lg shadow-lg p-12 touch-container" 
+                <div className="relative bg-white rounded-lg shadow-lg p-12 touch-container fade-in" 
                   onDrop={(e) => { e.preventDefault(); loadImage(e.dataTransfer.files[0]); }} 
                   onDragOver={(e) => e.preventDefault()} 
                   onMouseDown={handleMouseDown}
@@ -495,12 +526,12 @@
                 </div>
               </div>
 
-              <div className={`${isMobile ? 'order-1 w-full' : 'w-64'} bg-white shadow-lg p-4 flex ${isMobile ? 'flex-row flex-wrap' : 'flex-col'} gap-3 overflow-auto`}>
+              <div className={`${isMobile ? 'order-1 w-full' : 'w-64'} bg-white shadow-lg p-4 flex ${isMobile ? 'flex-row flex-wrap' : 'flex-col'} gap-3 overflow-auto slide-in`}>
                 <h2 className={`${isMobile ? 'w-full' : ''} text-lg font-bold mb-2`}>스튜디오 보라</h2>
                 
                 {!isMobile ? SIZES.map((s, i) => (
                   <button key={i} onClick={() => { setSelectedSize(s); setImage(null); setTransform({ x: 0, y: 0, width: 0, height: 0 }); }}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium text-left ${selectedSize.label === s.label ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+                    className={`px-4 py-2 rounded-lg text-sm font-medium text-left ${selectedSize.label === s.label ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'} btn-hover`}>
                     {s.label}
                   </button>
                 )) : (
@@ -513,27 +544,27 @@
                 )}
 
                 <button onClick={() => fileInputRef.current?.click()}
-                  className={`${isMobile ? 'flex-1' : 'mt-4'} flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600`}>
+                  className={`${isMobile ? 'flex-1' : 'mt-4'} flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 btn-hover`}>
                   ⬆ {isMobile ? '업로드' : '사진 업로드'}
                 </button>
 
                 {image && (
                   <>
-                    <div className={`flex gap-2 ${isMobile ? 'w-full' : ''}`}>
-                      <button onClick={() => zoom(0.9)} className="flex-1 px-3 py-2 bg-gray-500 text-white text-lg rounded-lg hover:bg-gray-600">−</button>
-                      <button onClick={() => zoom(1.1)} className="flex-1 px-3 py-2 bg-gray-500 text-white text-lg rounded-lg hover:bg-gray-600">+</button>
+                    <div className={`flex gap-2 ${isMobile ? 'w-full' : ''} slide-in`}>
+                      <button onClick={() => zoom(0.9)} className="flex-1 px-3 py-2 bg-gray-500 text-white text-lg rounded-lg hover:bg-gray-600 btn-hover">−</button>
+                      <button onClick={() => zoom(1.1)} className="flex-1 px-3 py-2 bg-gray-500 text-white text-lg rounded-lg hover:bg-gray-600 btn-hover">+</button>
                     </div>
                     
                     <div className={`${isMobile ? 'w-full' : ''}`}>
                       <div className="grid grid-cols-3 gap-1">
                         <div></div>
-                        <button onClick={() => moveImage(0, -10)} className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">↑</button>
+                        <button onClick={() => moveImage(0, -10)} className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 btn-hover">↑</button>
                         <div></div>
-                        <button onClick={() => moveImage(-10, 0)} className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">←</button>
+                        <button onClick={() => moveImage(-10, 0)} className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 btn-hover">←</button>
                         <div></div>
-                        <button onClick={() => moveImage(10, 0)} className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">→</button>
+                        <button onClick={() => moveImage(10, 0)} className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 btn-hover">→</button>
                         <div></div>
-                        <button onClick={() => moveImage(0, 10)} className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">↓</button>
+                        <button onClick={() => moveImage(0, 10)} className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 btn-hover">↓</button>
                         <div></div>
                       </div>
                     </div>
@@ -541,7 +572,7 @@
                 )}
 
                 <button onClick={downloadImage} disabled={!image}
-                  className={`${isMobile ? 'w-full' : ''} flex items-center justify-center gap-2 px-4 py-2 text-sm rounded-lg ${image ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-300 text-gray-500'}`}>
+                  className={`${isMobile ? 'w-full' : ''} flex items-center justify-center gap-2 px-4 py-2 text-sm rounded-lg ${image ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-300 text-gray-500'} btn-hover`}>
                   ⬇ {isMobile ? '다운' : 'PNG 다운로드'}
                 </button>
 

@@ -287,7 +287,6 @@
               ctx.stroke();
             }
 
-            // 이미지를 base64로 변환해서 표시
             const dataUrl = canvas.toDataURL('image/png');
             if (isMobile) {
               // 모바일: 새 창에서 열기
@@ -304,6 +303,7 @@
               a.download = `pin-button-${selectedSize.label}.png`;
               a.click();
             }
+          };
 
           useEffect(() => {
             document.addEventListener('mouseup', handleMouseUp);

@@ -287,28 +287,23 @@
               ctx.stroke();
             }
 
-            canvas.toBlob((blob) => {
-              if (isMobile) {
-                // 모바일: 새 탭에서 이미지 열기 (길게 눌러서 저장)
-                canvas.toBlob((blob) => {
-                  const url = URL.createObjectURL(blob);
-                  const newWindow = window.open(url, '_blank');
-                  if (!newWindow) {
-                    // 팝업 차단된 경우 현재 탭에서 열기
-                    window.location.href = url;
-                  }
-                }, 'image/png');
+            // 이미지를 base64로 변환해서 표시
+            const dataUrl = canvas.toDataURL('image/png');
+            if (isMobile) {
+              // 모바일: 새 창에서 열기
+              const newWindow = window.open();
+              if (newWindow) {
+                newWindow.document.write(`<img src="${dataUrl}" alt="pin-button" style="max-width:100%"/>`);
               } else {
-                // 데스크톱: 기존 방식
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `pin-button-${selectedSize.label}.png`;
-                a.click();
-                URL.revokeObjectURL(url);
+                alert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.');
               }
-            }, 'image/png');
-          };
+            } else {
+              // 데스크톱: 다운로드
+              const a = document.createElement('a');
+              a.href = dataUrl;
+              a.download = `pin-button-${selectedSize.label}.png`;
+              a.click();
+            }
 
           useEffect(() => {
             document.addEventListener('mouseup', handleMouseUp);

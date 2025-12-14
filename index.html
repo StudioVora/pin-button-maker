@@ -424,9 +424,11 @@
             const onTouchStart = (e) => {
               if (!image) return;
               
+              // 핸들을 터치한 경우 무시
               if (e.target.classList.contains('transform-handle')) return;
               
               if (e.touches.length === 1) {
+                // 1손가락: 드래그
                 isTouching = true;
                 const touch = e.touches[0];
                 setStartPos({ 
@@ -435,12 +437,22 @@
                   type: 'drag'
                 });
               } else if (e.touches.length === 2) {
+                // 2손가락: 핀치 줌
                 e.preventDefault();
                 isTouching = false;
                 const t1 = e.touches[0];
                 const t2 = e.touches[1];
+                const centerX = (t1.clientX + t2.clientX) / 2;
+                const centerY = (t1.clientY + t2.clientY) / 2;
                 touchStartDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-                touchStartTransform = { width: transform.width, height: transform.height };
+                touchStartTransform = { 
+                  width: transform.width, 
+                  height: transform.height,
+                  x: transform.x,
+                  y: transform.y,
+                  centerX: centerX,
+                  centerY: centerY
+                };
               }
             };
 
@@ -451,12 +463,12 @@
               if (isTouchResizing && e.touches.length === 1) {
                 e.preventDefault();
                 const touch = e.touches[0];
-                // 마우스 이벤트처럼 처리
                 handleMouseMove({ clientX: touch.clientX, clientY: touch.clientY });
                 return;
               }
               
               if (e.touches.length === 1 && isTouching) {
+                // 1손가락 드래그
                 e.preventDefault();
                 const touch = e.touches[0];
                 setTransform(prev => ({ 
@@ -465,20 +477,30 @@
                   y: touch.clientY - startPos.y 
                 }));
               } else if (e.touches.length === 2) {
+                // 2손가락 핀치 줌
                 e.preventDefault();
                 const t1 = e.touches[0];
                 const t2 = e.touches[1];
                 const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
                 const scale = dist / touchStartDist;
                 
-                setTransform(prev => ({ 
-                  ...prev,
+                // 현재 중심점
+                const currentCenterX = (t1.clientX + t2.clientX) / 2;
+                const currentCenterY = (t1.clientY + t2.clientY) / 2;
+                
+                // 중심점 이동량
+                const deltaX = currentCenterX - touchStartTransform.centerX;
+                const deltaY = currentCenterY - touchStartTransform.centerY;
+                
+                setTransform({ 
+                  x: touchStartTransform.x + deltaX,
+                  y: touchStartTransform.y + deltaY,
                   width: touchStartTransform.width * scale, 
                   height: touchStartTransform.height * scale 
-                }));
+                });
               }
             };
-
+            
             const onTouchEnd = () => {
               isTouching = false;
               setIsTouchResizing(false);

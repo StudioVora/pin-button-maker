@@ -94,6 +94,7 @@
           const [startTransform, setStartTransform] = useState({ x: 0, y: 0, width: 0, height: 0 });
           const [isMobile, setIsMobile] = useState(false);
           const [isInitialLoad, setIsInitialLoad] = useState(true);
+          const [isTouchResizing, setIsTouchResizing] = useState(false);
           const fileInputRef = useRef(null);
           const imageRef = useRef(null);
           const SCALE_FACTOR = 4;
@@ -212,8 +213,10 @@
 
            const handleTouchResizeStart = (e, handle) => {
             e.stopPropagation();
+            e.preventDefault();
             if (e.touches.length === 1) {
               const touch = e.touches[0];
+              setIsTouchResizing(true);
               setIsResizing(true);
               setResizeHandle(handle);
               setStartPos({ x: touch.clientX, y: touch.clientY });
@@ -421,6 +424,8 @@
             const onTouchStart = (e) => {
               if (!image) return;
               
+              if (e.target.classList.contains('transform-handle')) return;
+              
               if (e.touches.length === 1) {
                 isTouching = true;
                 const touch = e.touches[0];
@@ -441,6 +446,15 @@
 
             const onTouchMove = (e) => {
               if (!image) return;
+              
+              // 터치 리사이징 중일 때는 handleMouseMove 사용
+              if (isTouchResizing && e.touches.length === 1) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                // 마우스 이벤트처럼 처리
+                handleMouseMove({ clientX: touch.clientX, clientY: touch.clientY });
+                return;
+              }
               
               if (e.touches.length === 1 && isTouching) {
                 e.preventDefault();
@@ -467,6 +481,9 @@
 
             const onTouchEnd = () => {
               isTouching = false;
+              setIsTouchResizing(false);
+              setIsResizing(false);
+              setResizeHandle(null);
             };
 
             container.addEventListener('touchstart', onTouchStart, { passive: false });
@@ -478,7 +495,7 @@
               container.removeEventListener('touchmove', onTouchMove);
               container.removeEventListener('touchend', onTouchEnd);
             };
-          }, [image, transform, startPos]);
+          }, [image, transform, startPos, isTouchResizing]);
 
           const size = selectedSize.outer * 3;
           const innerSize = selectedSize.inner * 3;

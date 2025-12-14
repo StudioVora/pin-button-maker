@@ -210,6 +210,17 @@
             setStartTransform({ ...transform });
           };
 
+           const handleTouchResizeStart = (e, handle) => {
+            e.stopPropagation();
+            if (e.touches.length === 1) {
+              const touch = e.touches[0];
+              setIsResizing(true);
+              setResizeHandle(handle);
+              setStartPos({ x: touch.clientX, y: touch.clientY });
+              setStartTransform({ ...transform });
+            }
+          };
+
           const zoom = (factor) => {
             setTransform(prev => ({ ...prev, width: prev.width * factor, height: prev.height * factor }));
           };
@@ -544,7 +555,7 @@
                 style={{ touchAction: 'none' }}>
                   <div style={{ position: 'relative' }}>
                     <Shape />
-                    {image && !isMobile && ['tl','tr','bl','br','t','b','l','r'].map(h => {
+                    {image && ['tl','tr','bl','br','t','b','l','r'].map(h => {
                       const cursors = {tl:'nwse-resize',tr:'nesw-resize',bl:'nesw-resize',br:'nwse-resize',t:'ns-resize',b:'ns-resize',l:'ew-resize',r:'ew-resize'};
                       const isCorner = ['tl','tr','bl','br'].includes(h);
                       const pos = {
@@ -560,7 +571,8 @@
                       return <div key={h} 
                         className={`transform-handle ${isCorner ? 'corner' : 'edge'}`}
                         style={{ left: size + pos[h][0], top: size + pos[h][1], cursor: cursors[h] }} 
-                        onMouseDown={(e) => handleResizeStart(e, h)} />;
+                        onMouseDown={(e) => handleResizeStart(e, h)}
+                        onTouchStart={(e) => handleTouchResizeStart(e, h)} />;
                     })}
                   </div>
                 </div>

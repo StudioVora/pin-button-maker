@@ -38,9 +38,10 @@
         }
       @media (max-width: 768px) { .desktop-only { display: none !important; } }
 
-       .touch-container { padding: 200px !important; }
-        @media (max-width: 768px) { 
-            .touch-container { padding: 20px !important; } 
+      .touch-container { padding: 500px !important; }
+      @media (max-width: 768px) { 
+          .touch-container { padding: 100px !important; } 
+      }
       
       @keyframes fadeIn {
           from { opacity: 0; transform: scale(0.95); }
@@ -565,8 +566,8 @@
                 </div>
               </div>
 
-              <div className={`${isMobile ? 'order-1 w-full' : 'w-64'} bg-white shadow-lg p-4 flex ${isMobile ? 'flex-row flex-wrap' : 'flex-col'} gap-3 overflow-auto slide-in`}>
-                <h2 className={`${isMobile ? 'w-full' : ''} text-lg font-bold mb-2`}>스튜디오 보라</h2>
+              <div className={`${isMobile ? 'order-1 w-full' : 'w-48'} bg-white shadow-lg ${isMobile ? 'p-2' : 'p-4'} flex ${isMobile ? 'flex-row flex-wrap' : 'flex-col'} ${isMobile ? 'gap-1' : 'gap-3'} overflow-auto`}>
+                <h2 className={`${isMobile ? 'w-full text-sm' : 'text-lg'} font-bold ${isMobile ? 'mb-1' : 'mb-2'}`}>스튜디오 보라</h2>
                 
                 {!isMobile ? SIZES.map((s, i) => (
                   <button key={i} onClick={() => { setSelectedSize(s); setImage(null); setTransform({ x: 0, y: 0, width: 0, height: 0 }); }}
@@ -577,39 +578,39 @@
                   <select value={selectedSize.label} onChange={(e) => {
                     const s = SIZES.find(sz => sz.label === e.target.value);
                     setSelectedSize(s); setImage(null); setTransform({ x: 0, y: 0, width: 0, height: 0 });
-                  }} className="flex-1 px-3 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium">
+                  }} className="flex-1 px-2 py-1.5 rounded text-xs bg-blue-500 text-white font-medium">
                     {SIZES.map((s, i) => <option key={i} value={s.label}>{s.label}</option>)}
                   </select>
                 )}
 
                 <button onClick={() => fileInputRef.current?.click()}
-                  className={`${isMobile ? 'flex-1' : 'mt-4'} flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 btn-hover`}>
+                  className={`${isMobile ? 'flex-1 px-2 py-1.5 text-xs' : 'mt-4 px-4 py-2 text-sm'} flex items-center justify-center gap-1 bg-green-500 text-white rounded hover:bg-green-600`}>
                   ⬆ {isMobile ? '업로드' : '사진 업로드'}
                 </button>
 
                 {image && (
                   <>
-                    <div className={`flex gap-2 ${isMobile ? 'w-full' : ''} slide-in`}>
-                      <button onClick={() => zoom(0.9)} className="flex-1 px-3 py-2 bg-gray-500 text-white text-lg rounded-lg hover:bg-gray-600 btn-hover">−</button>
-                      <button onClick={() => zoom(1.1)} className="flex-1 px-3 py-2 bg-gray-500 text-white text-lg rounded-lg hover:bg-gray-600 btn-hover">+</button>
+                    <div className={`flex ${isMobile ? 'gap-1 w-1/2' : 'gap-2'}`}>
+                      <button onClick={() => zoom(0.9)} className={`flex-1 bg-gray-500 text-white rounded hover:bg-gray-600 ${isMobile ? 'px-2 py-1 text-base' : 'px-3 py-2 text-lg'}`}>−</button>
+                      <button onClick={() => zoom(1.1)} className={`flex-1 bg-gray-500 text-white rounded hover:bg-gray-600 ${isMobile ? 'px-2 py-1 text-base' : 'px-3 py-2 text-lg'}`}>+</button>
                     </div>
                     
-                    <div className={`${isMobile ? 'w-full' : ''} text-center py-2 bg-gray-100 rounded-lg`}>
-                      <span className="text-sm font-medium text-gray-700">
-                        배율: {getZoomPercentage()}%
+                    <div className={`${isMobile ? 'w-1/2' : ''} text-center bg-gray-100 rounded ${isMobile ? 'py-1' : 'py-2'}`}>
+                      <span className={`font-medium text-gray-700 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                        {getZoomPercentage()}%
                       </span>
                     </div>
 
                     <div className={`${isMobile ? 'w-full' : ''}`}>
-                      <div className="grid grid-cols-3 gap-1">
+                      <div className={`grid grid-cols-3 ${isMobile ? 'gap-0.5' : 'gap-1'}`}>
                         <div></div>
-                        <button onClick={() => moveImage(0, -10)} className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 btn-hover">↑</button>
+                        <button onClick={() => moveImage(0, -10)} className={`bg-purple-500 text-white rounded hover:bg-purple-600 ${isMobile ? 'px-2 py-1 text-sm' : 'px-3 py-2'}`}>↑</button>
                         <div></div>
-                        <button onClick={() => moveImage(-10, 0)} className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 btn-hover">←</button>
+                        <button onClick={() => moveImage(-10, 0)} className={`bg-purple-500 text-white rounded hover:bg-purple-600 ${isMobile ? 'px-2 py-1 text-sm' : 'px-3 py-2'}`}>←</button>
                         <div></div>
-                        <button onClick={() => moveImage(10, 0)} className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 btn-hover">→</button>
+                        <button onClick={() => moveImage(10, 0)} className={`bg-purple-500 text-white rounded hover:bg-purple-600 ${isMobile ? 'px-2 py-1 text-sm' : 'px-3 py-2'}`}>→</button>
                         <div></div>
-                        <button onClick={() => moveImage(0, 10)} className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 btn-hover">↓</button>
+                        <button onClick={() => moveImage(0, 10)} className={`bg-purple-500 text-white rounded hover:bg-purple-600 ${isMobile ? 'px-2 py-1 text-sm' : 'px-3 py-2'}`}>↓</button>
                         <div></div>
                       </div>
                     </div>
@@ -618,13 +619,13 @@
 
                 {image && (
                   <button onClick={resetImage}
-                    className={`${isMobile ? 'w-full' : ''} flex items-center justify-center gap-2 px-4 py-2 bg-orange-500 text-white text-sm rounded-lg hover:bg-orange-600`}>
+                    className={`${isMobile ? 'w-full px-2 py-1.5 text-xs' : 'px-4 py-2 text-sm'} flex items-center justify-center gap-1 bg-orange-500 text-white rounded hover:bg-orange-600`}>
                     🔄 {isMobile ? '초기화' : '이미지 초기화'}
                   </button>
                 )}
 
                 <button onClick={downloadImage} disabled={!image}
-                  className={`${isMobile ? 'w-full' : ''} flex items-center justify-center gap-2 px-4 py-2 text-sm rounded-lg ${image ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-300 text-gray-500'} btn-hover`}>
+                  className={`${isMobile ? 'w-full px-2 py-1.5 text-xs' : 'px-4 py-2 text-sm'} flex items-center justify-center gap-1 rounded ${image ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-300 text-gray-500'}`}>
                   ⬇ {isMobile ? '다운' : 'PNG 다운로드'}
                 </button>
 
@@ -639,7 +640,7 @@
                 )}
               </div>
 
-              <input ref={fileInputRef} type="file" accept="image/*" onChange={(e) => loadImage(e.target.files?.[0])} className="hidden" />
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={(e) => e.target.files && loadImage(e.target.files[0])} className="hidden" />
             </div>
           );
         };

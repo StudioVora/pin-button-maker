@@ -476,7 +476,7 @@
                 const touch = e.touches[0];
                 setTransform(prev => ({ 
                   ...prev, 
-                  x: touch.clientX - touchStartPos.x, 
+                  x: touch.clientX - touchStartPos.x,
                   y: touch.clientY - touchStartPos.y 
                 }));
               } else if (e.touches.length === 2) {
@@ -506,70 +506,6 @@
 
             const onTouchEnd = () => {
               setIsTouchDragging(false);
-              setIsTouchResizing(false);
-              setIsResizing(false);
-              setResizeHandle(null);
-            };
-
-            container.addEventListener('touchstart', onTouchStart, { passive: false });
-            container.addEventListener('touchmove', onTouchMove, { passive: false });
-            container.addEventListener('touchend', onTouchEnd);
-
-            return () => {
-              container.removeEventListener('touchstart', onTouchStart);
-              container.removeEventListener('touchmove', onTouchMove);
-              container.removeEventListener('touchend', onTouchEnd);
-            };
-          }, [image, transform, isTouchResizing, isTouchDragging]);
-
-            const onTouchMove = (e) => {
-              if (!image) return;
-              if (isTouchResizing) return;
-              
-              // 터치 리사이징 중일 때는 handleMouseMove 사용
-              if (isTouchResizing && e.touches.length === 1) {
-                e.preventDefault();
-                const touch = e.touches[0];
-                handleMouseMove({ clientX: touch.clientX, clientY: touch.clientY });
-                return;
-              }
-              
-              if (e.touches.length === 1 && isTouching) {
-                // 1손가락 드래그
-                e.preventDefault();
-                const touch = e.touches[0];
-                setTransform(prev => ({ 
-                  ...prev, 
-                  x: touch.clientX - startPos.x, 
-                  y: touch.clientY - startPos.y 
-                }));
-              } else if (e.touches.length === 2) {
-                // 2손가락 핀치 줌
-                e.preventDefault();
-                const t1 = e.touches[0];
-                const t2 = e.touches[1];
-                const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-                const scale = dist / touchStartDist;
-                
-                // 현재 중심점
-                const currentCenterX = (t1.clientX + t2.clientX) / 2;
-                const currentCenterY = (t1.clientY + t2.clientY) / 2;
-                
-                // 중심점 이동량
-                const deltaX = currentCenterX - touchStartTransform.centerX;
-                const deltaY = currentCenterY - touchStartTransform.centerY;
-                
-                setTransform({ 
-                  x: touchStartTransform.x + deltaX,
-                  y: touchStartTransform.y + deltaY,
-                  width: touchStartTransform.width * scale, 
-                  height: touchStartTransform.height * scale 
-                });
-              }
-            };
-
-            const onTouchEnd = () => {
-              isTouching = false;
               setIsTouchResizing(false);
               setIsResizing(false);
               setResizeHandle(null);
@@ -762,7 +698,6 @@
               <input ref={fileInputRef} type="file" accept="image/*" onChange={(e) => e.target.files && loadImage(e.target.files[0])} className="hidden" />
             </div>
           );
-        };
 
         ReactDOM.render(<App />, document.getElementById('root'));
     </script>

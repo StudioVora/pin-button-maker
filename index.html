@@ -387,22 +387,18 @@
               ctx.stroke();
             }
 
-            const dataUrl = canvas.toDataURL('image/png');
-            if (isMobile) {
-              // 모바일: 새 창에서 열기
-              const newWindow = window.open();
-              if (newWindow) {
-                newWindow.document.write(`<img src="${dataUrl}" alt="pin-button" style="max-width:100%"/>`);
-              } else {
-                alert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.');
-              }
-            } else {
-              // 데스크톱: 다운로드
+            canvas.toBlob((blob) => {
+              const url = URL.createObjectURL(blob);
               const a = document.createElement('a');
-              a.href = dataUrl;
+              a.href = url;
               a.download = `pin-button-${selectedSize.label}.png`;
+              document.body.appendChild(a);
               a.click();
-            }
+              document.body.removeChild(a);
+              
+              // 메모리 정리
+              setTimeout(() => URL.revokeObjectURL(url), 100);
+            }, 'image/png');
           };
 
           useEffect(() => {

@@ -40,7 +40,7 @@
 
       .touch-container { padding: 500px !important; }
       @media (max-width: 768px) { 
-          .touch-container { padding: 100px !important; } 
+          .touch-container { padding: 30px !important; } 
       }
       
       @keyframes fadeIn {
@@ -388,16 +388,35 @@
             }
 
             canvas.toBlob((blob) => {
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `pin-button-${selectedSize.label}.png`;
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
+              if (!blob) {
+                alert('이미지 생성에 실패했습니다.');
+                return;
+              }
               
-              // 메모리 정리
-              setTimeout(() => URL.revokeObjectURL(url), 100);
+              if (isMobile) {
+                // 모바일: Blob URL 사용
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `pin-button-${selectedSize.label}.png`;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                
+                // 약간의 딜레이 후 클릭
+                setTimeout(() => {
+                  a.click();
+                  document.body.removeChild(a);
+                  setTimeout(() => URL.revokeObjectURL(url), 1000);
+                }, 10);
+              } else {
+                // 데스크톱: 기존 방식
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `pin-button-${selectedSize.label}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }
             }, 'image/png');
           };
 
@@ -529,13 +548,13 @@
                 <svg width={size * 2} height={size * 2 + 6} style={common} className={isInitialLoad ? "fade-in" : ""}>
                   {image && <><defs><clipPath id={clipId}><circle cx={size} cy={size} r={size} /></clipPath></defs>
                   <image href={image} x={size + transform.x - transform.width / 2} y={size + transform.y - transform.height / 2} 
-                    width={transform.width} height={transform.height} preserveAspectRatio="none" clipPath={`url(#${clipId})`} pointerEvents="none" style={{transition: 'all 0.1s ease'}}/></>}
+                    width={transform.width} height={transform.height} preserveAspectRatio="none" clipPath={`url(#${clipId})`} pointerEvents="auto" style={{transition: 'all 0.1s ease'}}/></>}
                   <circle cx={size} cy={size} r={size} fill="none" stroke="#000" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
                   <circle cx={size} cy={size} r={innerSize} fill="none" stroke="#f00" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
                   <line x1={size} y1={0} x2={size} y2={6} stroke="#000" strokeWidth="1" />
                   {!image && <g onClick={() => fileInputRef.current?.click()} style={{cursor:'pointer'}} className="slide-in">
                     <circle cx={size} cy={size} r={30} fill="#f3f4f6" />
-                    <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" pointerEvents="none">+</text></g>}
+                    <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" pointerEvents="auto">+</text></g>}
                 </svg>
               );
             } else if (selectedSize.type === 'square') {
@@ -544,13 +563,13 @@
                 <svg width={size * 2} height={size * 2 + 6} style={common} className={isInitialLoad ? "fade-in" : ""}>
                   {image && <><defs><clipPath id={clipId}><rect x={0} y={0} width={size * 2} height={size * 2} rx={r} /></clipPath></defs>
                   <image href={image} x={size + transform.x - transform.width / 2} y={size + transform.y - transform.height / 2}
-                    width={transform.width} height={transform.height} preserveAspectRatio="none" clipPath={`url(#${clipId})`} pointerEvents="none" style={{transition: 'all 0.1s ease'}} /></>}
+                    width={transform.width} height={transform.height} preserveAspectRatio="none" clipPath={`url(#${clipId})`} pointerEvents="auto" style={{transition: 'all 0.1s ease'}} /></>}
                   <rect x={0} y={0} width={size * 2} height={size * 2} rx={r} fill="none" stroke="#000" strokeWidth="2" style={{transition: 'all 0.3s ease'}} />
                   <rect x={size - innerSize} y={size - innerSize} width={innerSize * 2} height={innerSize * 2} rx={ir} fill="none" stroke="#f00" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
                   <line x1={size} y1={0} x2={size} y2={6} stroke="#000" strokeWidth="1" />
                   {!image && <g onClick={() => fileInputRef.current?.click()} style={{cursor:'pointer'}} className="slide-in">
                     <circle cx={size} cy={size} r={30} fill="#f3f4f6" />
-                    <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" pointerEvents="none">+</text></g>}
+                    <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" pointerEvents="auto">+</text></g>}
                 </svg>
               );
             } else {
@@ -571,12 +590,12 @@
                 <svg width={size * 2} height={size * 2 + 6} style={common} className={isInitialLoad ? "fade-in" : ""}>
                   {image && <><defs><clipPath id={clipId}><path d={outerPath} /></clipPath></defs>
                   <image href={image} x={size + transform.x - transform.width / 2} y={size + transform.y - transform.height / 2}
-                    width={transform.width} height={transform.height} preserveAspectRatio="none" clipPath={`url(#${clipId})`} pointerEvents="none" style={{transition: 'all 0.1s ease'}}/></>}
+                    width={transform.width} height={transform.height} preserveAspectRatio="none" clipPath={`url(#${clipId})`} pointerEvents="auto" style={{transition: 'all 0.1s ease'}}/></>}
                   <path d={outerPath} fill="none" stroke="#000" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
                   <path d={innerPath} fill="none" stroke="#f00" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
                   {!image && <g onClick={() => fileInputRef.current?.click()} style={{cursor:'pointer'}} className="slide-in">
                     <circle cx={size} cy={size} r={30} fill="#f3f4f6" />
-                    <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" pointerEvents="none">+</text></g>}
+                    <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" pointerEvents="auto">+</text></g>}
                 </svg>
               );
             }
@@ -692,8 +711,9 @@
 
               <input ref={fileInputRef} type="file" accept="image/*" onChange={(e) => e.target.files && loadImage(e.target.files[0])} className="hidden" />
             </div>
-          );
+            );
           };
+
         ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>

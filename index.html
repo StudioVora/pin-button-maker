@@ -552,9 +552,6 @@
                   <circle cx={size} cy={size} r={size} fill="none" stroke="#000" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
                   <circle cx={size} cy={size} r={innerSize} fill="none" stroke="#f00" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
                   <line x1={size} y1={0} x2={size} y2={6} stroke="#000" strokeWidth="1" />
-                  {!image && <g onClick={() => fileInputRef.current?.click()} style={{cursor:'pointer'}} className="slide-in">
-                    <circle cx={size} cy={size} r={30} fill="#f3f4f6" />
-                    <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" pointerEvents="none">+</text></g>}
                 </svg>
               );
             } else if (selectedSize.type === 'square') {
@@ -567,9 +564,6 @@
                   <rect x={0} y={0} width={size * 2} height={size * 2} rx={r} fill="none" stroke="#000" strokeWidth="2" style={{transition: 'all 0.3s ease'}} />
                   <rect x={size - innerSize} y={size - innerSize} width={innerSize * 2} height={innerSize * 2} rx={ir} fill="none" stroke="#f00" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
                   <line x1={size} y1={0} x2={size} y2={6} stroke="#000" strokeWidth="1" />
-                  {!image && <g onClick={() => fileInputRef.current?.click()} style={{cursor:'pointer'}} className="slide-in">
-                    <circle cx={size} cy={size} r={30} fill="#f3f4f6" />
-                    <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" pointerEvents="none">+</text></g>}
                 </svg>
               );
             } else {
@@ -593,9 +587,6 @@
                     width={transform.width} height={transform.height} preserveAspectRatio="none" clipPath={`url(#${clipId})`} pointerEvents="none" style={{transition: 'all 0.1s ease'}}/></>}
                   <path d={outerPath} fill="none" stroke="#000" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
                   <path d={innerPath} fill="none" stroke="#f00" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
-                  {!image && <g onClick={() => fileInputRef.current?.click()} style={{cursor:'pointer'}} className="slide-in">
-                    <circle cx={size} cy={size} r={30} fill="#f3f4f6" />
-                    <text x={size} y={size + 5} textAnchor="middle" fontSize="32" fill="#6b7280" pointerEvents="none">+</text></g>}
                 </svg>
               );
             }

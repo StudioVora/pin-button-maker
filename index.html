@@ -394,21 +394,61 @@
               }
               
               if (isMobile) {
-                // 모바일: Blob URL 사용
                 const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `pin-button-${selectedSize.label}.png`;
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                
-                // 약간의 딜레이 후 클릭
-                setTimeout(() => {
-                  a.click();
-                  document.body.removeChild(a);
-                  setTimeout(() => URL.revokeObjectURL(url), 1000);
-                }, 10);
-              } else {
+
+                // 새 탭 열기
+                const win = window.open('', '_blank');
+
+                if (win) {
+                  win.document.write(`
+                    <!DOCTYPE html>
+                    <html lang="ko">
+                    <head>
+                      <meta charset="UTF-8" />
+                      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                      <title>이미지 저장</title>
+                      <style>
+                        body {
+                          margin: 0;
+                          background: #111827;
+                          color: #fff;
+                          font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+                        }
+                        .notice {
+                          position: sticky;
+                          top: 0;
+                          background: rgba(17, 24, 39, 0.95);
+                          padding: 12px;
+                          text-align: center;
+                          font-size: 14px;
+                          font-weight: 500;
+                          z-index: 10;
+                        }
+                        img {
+                          display: block;
+                          width: 100%;
+                          height: auto;
+                        }
+                      </style>
+                    </head>
+                    <body>
+                      <div class="notice">
+                        이미지를 길게 눌러 저장하세요
+                      </div>
+                      <img src="${url}" alt="pin design" />
+                    </body>
+                    </html>
+                  `);
+                  win.document.close();
+                } else {
+                  // 팝업 차단 대비 (fallback)
+                  window.location.href = url;
+                }
+
+                // URL은 충분히 늦게 해제
+                setTimeout(() => URL.revokeObjectURL(url), 10000);
+              }
+               else {
                 // 데스크톱: 기존 방식
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -702,7 +742,7 @@
 
                 <button onClick={downloadImage} disabled={!image}
                   className={`${isMobile ? 'w-full px-2 py-1.5 text-xs' : 'px-4 py-2 text-sm'} flex items-center justify-center gap-1 rounded ${image ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-300 text-gray-500'}`}>
-                  ⬇ {isMobile ? '도안 다운 하기' : '도안 다운로드'}
+                  ⬇ {isMobile ? '도안으로 만들기' : '도안 다운로드'}
                 </button>
 
                 {image && !isMobile && (

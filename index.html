@@ -548,7 +548,7 @@
                 <svg width={size * 2} height={size * 2 + 6} style={common} className={isInitialLoad ? "fade-in" : ""}>
                   {image && <><defs><clipPath id={clipId}><circle cx={size} cy={size} r={size} /></clipPath></defs>
                   <image href={image} x={size + transform.x - transform.width / 2} y={size + transform.y - transform.height / 2} 
-                    width={transform.width} height={transform.height} preserveAspectRatio="none" clipPath={`url(#${clipId})`} pointerEvents="none" style={{transition: 'all 0.1s ease'}}/></>}
+                    width={transform.width} height={transform.height} preserveAspectRatio="none" clipPath={`url(#${clipId})`} pointerEvents="none" style={{transition: 'x 0.3s ease, y 0.3s ease, width 0.3s ease, height 0.3s ease'}}/></>}
                   <circle cx={size} cy={size} r={size} fill="none" stroke="#000" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
                   <circle cx={size} cy={size} r={innerSize} fill="none" stroke="#f00" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
                   <line x1={size} y1={0} x2={size} y2={6} stroke="#000" strokeWidth="1" />
@@ -560,7 +560,7 @@
                 <svg width={size * 2} height={size * 2 + 6} style={common} className={isInitialLoad ? "fade-in" : ""}>
                   {image && <><defs><clipPath id={clipId}><rect x={0} y={0} width={size * 2} height={size * 2} rx={r} /></clipPath></defs>
                   <image href={image} x={size + transform.x - transform.width / 2} y={size + transform.y - transform.height / 2}
-                    width={transform.width} height={transform.height} preserveAspectRatio="none" clipPath={`url(#${clipId})`} pointerEvents="none" style={{transition: 'all 0.1s ease'}} /></>}
+                    width={transform.width} height={transform.height} preserveAspectRatio="none" clipPath={`url(#${clipId})`} pointerEvents="none" style={{transition: 'x 0.3s ease, y 0.3s ease, width 0.3s ease, height 0.3s ease'}} /></>}
                   <rect x={0} y={0} width={size * 2} height={size * 2} rx={r} fill="none" stroke="#000" strokeWidth="2" style={{transition: 'all 0.3s ease'}} />
                   <rect x={size - innerSize} y={size - innerSize} width={innerSize * 2} height={innerSize * 2} rx={ir} fill="none" stroke="#f00" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
                   <line x1={size} y1={0} x2={size} y2={6} stroke="#000" strokeWidth="1" />
@@ -584,7 +584,7 @@
                 <svg width={size * 2} height={size * 2 + 6} style={common} className={isInitialLoad ? "fade-in" : ""}>
                   {image && <><defs><clipPath id={clipId}><path d={outerPath} /></clipPath></defs>
                   <image href={image} x={size + transform.x - transform.width / 2} y={size + transform.y - transform.height / 2}
-                    width={transform.width} height={transform.height} preserveAspectRatio="none" clipPath={`url(#${clipId})`} pointerEvents="none" style={{transition: 'all 0.1s ease'}}/></>}
+                    width={transform.width} height={transform.height} preserveAspectRatio="none" clipPath={`url(#${clipId})`} pointerEvents="none" style={{transition: 'x 0.3s ease, y 0.3s ease, width 0.3s ease, height 0.3s ease'}}/></>}
                   <path d={outerPath} fill="none" stroke="#000" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
                   <path d={innerPath} fill="none" stroke="#f00" strokeWidth="2" style={{transition: 'all 0.3s ease'}}/>
                 </svg>
@@ -602,6 +602,16 @@
                 style={{ touchAction: 'none' }}>
                   <div style={{ position: 'relative' }}>
                     <Shape />
+                    {!image && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 pointer-events-none">
+                        <p className="text-sm md:text-base font-medium">
+                          사진을 업로드해주세요
+                        </p>
+                        <p className="text-xs mt-1">
+                          (버튼 클릭 또는 드래그)
+                        </p>
+                      </div>
+                    )}
                     {image && ['tl','tr','bl','br','t','b','l','r'].map(h => {
                       const cursors = {tl:'nwse-resize',tr:'nesw-resize',bl:'nesw-resize',br:'nwse-resize',t:'ns-resize',b:'ns-resize',l:'ew-resize',r:'ew-resize'};
                       const isCorner = ['tl','tr','bl','br'].includes(h);
@@ -643,9 +653,15 @@
                   </select>
                 )}
 
-                <button onClick={() => fileInputRef.current?.click()}
-                  className={`${isMobile ? 'flex-1 px-2 py-1.5 text-xs' : 'mt-4 px-4 py-2 text-sm'} flex items-center justify-center gap-1 bg-green-500 text-white rounded hover:bg-green-600`}>
-                  ⬆ {isMobile ? '업로드' : '사진 업로드'}
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`${
+                    isMobile
+                      ? 'w-full px-4 py-3 text-sm font-semibold'
+                      : 'mt-4 px-4 py-2 text-sm'
+                  } flex items-center justify-center gap-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition`}
+                >
+                  ⬆ {isMobile ? '사진 업로드 하기' : '사진 업로드'}
                 </button>
 
                 {image && (
@@ -686,7 +702,7 @@
 
                 <button onClick={downloadImage} disabled={!image}
                   className={`${isMobile ? 'w-full px-2 py-1.5 text-xs' : 'px-4 py-2 text-sm'} flex items-center justify-center gap-1 rounded ${image ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-300 text-gray-500'}`}>
-                  ⬇ {isMobile ? '다운' : 'PNG 다운로드'}
+                  ⬇ {isMobile ? '도안 다운 하기' : '도안 다운로드'}
                 </button>
 
                 {image && !isMobile && (
